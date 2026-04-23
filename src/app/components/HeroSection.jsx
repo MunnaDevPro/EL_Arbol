@@ -1,0 +1,132 @@
+const features = [
+  {
+    title: 'Same Day Delivery',
+    sub: 'Order by 10am',
+    icon: (
+      <svg width="28" height="28" fill="none" stroke="#00694C" strokeWidth="1.6" viewBox="0 0 24 24">
+        <rect x="1" y="3" width="15" height="13" rx="1" />
+        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+        <circle cx="5.5" cy="18.5" r="2.5" />
+        <circle cx="18.5" cy="18.5" r="2.5" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Click & Collect',
+    sub: 'Free pickup in-store',
+    icon: (
+      <svg width="28" height="28" fill="none" stroke="#00694C" strokeWidth="1.6" viewBox="0 0 24 24">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Fresh Daily',
+    sub: 'Picked at peak ripeness',
+    icon: (
+      <svg width="28" height="28" fill="none" stroke="#00694C" strokeWidth="1.6" viewBox="0 0 24 24">
+        <path d="M12 22V12" />
+        <path d="M12 12C12 12 7 9 7 4a5 5 0 0 1 10 0c0 5-5 8-5 8z" />
+        <path d="M12 12C12 12 17 9 17 4" />
+        <path d="M8 20h8" />
+      </svg>
+    ),
+  },
+  {
+    title: '100% Natural',
+    sub: 'Pesticide free choice',
+    icon: (
+      <svg width="28" height="28" fill="none" stroke="#00694C" strokeWidth="1.6" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <polyline points="9 12 11 14 15 10" />
+      </svg>
+    ),
+  },
+]
+
+export default function HeroSection() {
+  return (
+    <section className="bg-[#F5F5E8]">
+
+      {/* ── Hero text ─────────────────────────────── */}
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pt-16 md:pt-24 pb-14 md:pb-20">
+        <div className="max-w-[500px]">
+
+          {/* Heading */}
+          <h1
+            className="text-[#151E13] mb-5"
+            style={{
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: 'clamp(2.6rem, 4.2vw, 3.7rem)',
+              fontWeight: 700,
+              lineHeight: 1.06,
+            }}
+          >
+            Fresh from the&nbsp;market,<br />
+            delivered to your&nbsp;door.
+          </h1>
+
+          {/* Paragraph */}
+          <p
+            className="text-[#3D4943] mb-9"
+            style={{ fontSize: '15.5px', lineHeight: 1.72, maxWidth: '430px' }}
+          >
+            Experience the finest seasonal harvests sourced directly from local
+            growers. We bring the artisanal market experience to your kitchen.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <a
+              href="#"
+              className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                fontSize: '14px',
+                padding: '13px 30px',
+                boxShadow: '0 4px 18px rgba(0,105,76,0.28)',
+              }}
+            >
+              Shop Now
+            </a>
+            <a
+              href="#"
+              className="inline-flex items-center justify-center text-[#151E13] font-semibold rounded-[8px] border hover:bg-[#151E13] hover:text-white transition-all duration-200"
+              style={{
+                fontSize: '14px',
+                padding: '12px 30px',
+                borderColor: '#151E13',
+                borderWidth: '1.5px',
+              }}
+            >
+              Find My Store
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Feature cards ─────────────────────────── */}
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {features.map(({ title, sub, icon }) => (
+            <div
+              key={title}
+              className="bg-white rounded-xl border border-[#BCCAC1]/30 flex items-center gap-3"
+              style={{ padding: '16px 18px', boxShadow: '0 1px 4px rgba(21,30,19,0.05)' }}
+            >
+              <span className="shrink-0">{icon}</span>
+              <div>
+                <p style={{ fontSize: '13.5px', fontWeight: 600, color: '#151E13', lineHeight: 1.3 }}>{title}</p>
+                <p style={{ fontSize: '11.5px', color: '#6D7A73', lineHeight: 1.4, marginTop: '2px' }}>{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Mobile full-bleed hero ─────────────────── */}
+      {/* (shown only on mobile below md breakpoint — using md:hidden on the separate mobile block) */}
+    </section>
+  )
+}
