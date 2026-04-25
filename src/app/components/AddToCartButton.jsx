@@ -1,5 +1,5 @@
 'use client'
-
+import { ShoppingBag, Check } from 'lucide-react'
 import { useState } from 'react'
 
 export default function AddToCartButton({ inStock }) {
@@ -7,8 +7,12 @@ export default function AddToCartButton({ inStock }) {
 
   if (!inStock) {
     return (
-      <button className="w-full text-xs font-medium border border-brand-light-muted text-brand-muted py-2.5 rounded-lg cursor-default">
-        Notify Me
+      <button
+        disabled
+        className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center cursor-default"
+        title="Out of stock"
+      >
+        <ShoppingBag size={16} className="text-gray-300" />
       </button>
     )
   }
@@ -21,13 +25,15 @@ export default function AddToCartButton({ inStock }) {
   return (
     <button
       onClick={handleClick}
-      className={`w-full text-xs font-semibold py-2.5 rounded-lg transition-all duration-200 ${
-        added
-          ? 'bg-brand-mint text-brand-dark-green'
-          : 'bg-brand-green text-white hover:bg-brand-dark-green active:scale-95'
+      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors duration-200 ${
+        added ? 'bg-emerald-400' : 'bg-emerald-600'
       }`}
+      title="Add to cart"
     >
-      {added ? '✓ Added' : 'ADD TO CART'}
+      {added
+        ? <Check size={16} className="text-white" />
+        : <ShoppingBag size={16} className="text-white" />
+      }
     </button>
   )
 }

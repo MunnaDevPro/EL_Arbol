@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { products, categories } from '@/app/data/products'
+import ProductCard from '@/app/components/ProductCard'   // ← এইটা আগে ছিলই না
 
 export default function ProductGrid() {
   const [active, setActive] = useState('All')
@@ -11,11 +12,11 @@ export default function ProductGrid() {
     active === 'All'
       ? products
       : active === 'On Sale'
-      ? products.filter((p) => p.oldPrice)
+      ? products.filter((p) => p.onSale)               // ← p.oldPrice থেকে p.onSale
       : products.filter((p) => p.category === active)
 
   return (
-    <section className="bg-[#F5F5E8] pb-20">
+    <section className="bg-[var(--section-color)] pb-20">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
 
         {/* ── Category filter pills ──────────────────── */}
@@ -91,100 +92,5 @@ export default function ProductGrid() {
         )}
       </div>
     </section>
-  )
-}
-
-/* ─── Product Card ──────────────────────────────────────────── */
-function ProductCard({ product, notified, onNotify }) {
-  const isCentered = !product.inStock
-
-  return (
-    <article
-      className="bg-white rounded-xl overflow-hidden flex flex-col"
-      style={{
-        border: '1px solid rgba(188,202,193,0.35)',
-        boxShadow: '0 1px 6px rgba(21,30,19,0.05)',
-      }}
-    >
-      {/* Image */}
-      <div className="relative overflow-hidden bg-[#F0F0E6]" style={{ aspectRatio: '1 / 1' }}>
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-
-        {/* Badge */}
-        <span
-          className={`absolute top-2.5 ${isCentered ? 'left-1/2 -translate-x-1/2' : 'left-2.5'} rounded-full`}
-          style={{
-            fontSize: '9.5px',
-            fontWeight: 700,
-            letterSpacing: '0.06em',
-            padding: '4px 10px',
-            whiteSpace: 'nowrap',
-            background: product.badge === 'ON SALE' ? '#DC2626' : 'white',
-            color: product.badge === 'ON SALE' ? 'white' : '#151E13',
-          }}
-        >
-          {product.badge}
-        </span>
-      </div>
-
-      {/* Card body */}
-      <div className="flex flex-col flex-1 p-3.5">
-        {/* Name */}
-        <h3
-          className="mb-2"
-          style={{
-            fontFamily: '"Playfair Display", Georgia, serif',
-            fontSize: '14px',
-            fontWeight: 700,
-            color: '#151E13',
-            lineHeight: 1.3,
-          }}
-        >
-          {product.name}
-        </h3>
-
-        {/* SKU + unit OR Notify Me */}
-        {product.inStock ? (
-          <div className="flex items-center gap-2 flex-wrap mt-auto">
-            {product.sku && (
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#855000' }}>
-                {product.sku}
-              </span>
-            )}
-            {product.skuExtra && (
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#855000' }}>
-                {product.skuExtra}
-              </span>
-            )}
-            {product.sku && (
-              <span style={{ fontSize: '12px', color: '#6D7A73' }}>
-                / {product.unit}
-              </span>
-            )}
-          </div>
-        ) : (
-          <div className="mt-auto pt-1">
-            <button
-              onClick={onNotify}
-              className="w-full rounded-lg border transition-colors hover:bg-[#F5F5E8]"
-              style={{
-                fontSize: '12.5px',
-                fontWeight: 500,
-                color: notified ? '#00694C' : '#151E13',
-                borderColor: notified ? '#00694C' : '#BCCAC1',
-                padding: '8px 0',
-              }}
-            >
-              {notified ? 'Notified ✓' : 'Notify Me'}
-            </button>
-          </div>
-        )}
-      </div>
-    </article>
   )
 }

@@ -48,37 +48,34 @@ const features = [
 
 export default function HeroSection() {
   return (
-    <section className="bg-[#F5F5E8]">
+    <section className="bg-[#FAFAF8]">
 
       {/* ── Hero text ─────────────────────────────── */}
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pt-16 md:pt-24 pb-14 md:pb-20">
-        <div className="max-w-[500px]">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pt-10 md:pt-16 pb-14 md:pb-15">
+        <div className="max-w-[600px]">
 
           {/* Heading */}
           <h1
             className="text-[#151E13] mb-5"
             style={{
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: 'clamp(2.6rem, 4.2vw, 3.7rem)',
-              fontWeight: 700,
-              lineHeight: 1.06,
-            }}
-          >
+              fontSize: 'clamp(2.6rem, 4.2vw, 3rem)',
+              fontWeight: 650,
+              lineHeight: 1,
+              textShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',}}>
             Fresh from the&nbsp;market,<br />
             delivered to your&nbsp;door.
           </h1>
 
           {/* Paragraph */}
-          <p
-            className="text-[#3D4943] mb-9"
-            style={{ fontSize: '15.5px', lineHeight: 1.72, maxWidth: '430px' }}
-          >
+          <p className="text-[#3D4943] mb-9"
+            style={{ fontSize: '15.5px', lineHeight: 1.72, maxWidth: '430px',textShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)', }}>
             Experience the finest seasonal harvests sourced directly from local
             growers. We bring the artisanal market experience to your kitchen.
           </p>
 
           {/* CTAs */}
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <a
               href="#"
               className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
@@ -90,13 +87,15 @@ export default function HeroSection() {
             >
               Shop Now
             </a>
+
+            {/* Find My Store button */}
             <a
               href="#"
-              className="inline-flex items-center justify-center text-[#151E13] font-semibold rounded-[8px] border hover:bg-[#151E13] hover:text-white transition-all duration-200"
+              className="inline-flex items-center justify-center border border-color-[var(--common-color)] text-[var(--common-color)] font-semibold rounded-[8px] hover:text-[var(--logo-color)] transition-all duration-200"
               style={{
                 fontSize: '14px',
                 padding: '12px 30px',
-                borderColor: '#151E13',
+                borderColor: '#ECF7E4',
                 borderWidth: '1.5px',
               }}
             >
@@ -113,7 +112,7 @@ export default function HeroSection() {
             <div
               key={title}
               className="bg-white rounded-xl border border-[#BCCAC1]/30 flex items-center gap-3"
-              style={{ padding: '16px 18px', boxShadow: '0 1px 4px rgba(21,30,19,0.05)' }}
+              style={{ padding: '16px 18px', boxShadow: '0 1px 4px rgba(21,30,19,0.05)'}}
             >
               <span className="shrink-0">{icon}</span>
               <div>

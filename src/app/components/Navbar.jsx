@@ -1,5 +1,6 @@
 'use client'
-
+import { newsreader } from '@/app/components/fonts'
+import Link from 'next/link'
 import { useState } from 'react'
 
 const navLinks = [
@@ -23,34 +24,42 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#F5F5E8]/96 backdrop-blur-sm border-b border-[#BCCAC1]/35">
-        <nav className="max-w-[1280px] mx-auto px-6 lg:px-10 h-[68px] flex items-center gap-6">
+      <header className="sticky top-0 z-50 border border-b-[1px] border-color-[var(--common-color)] bg-[#FAFAF8] backdrop-blur-sm border-b border-[#BCCAC1]/35">
+        <nav className="max-w-[1280px] mx-auto px-6 lg:px-10 h-[60px] flex items-center gap-6">
 
           {/* Logo */}
-          <a href="/" className="flex items-center gap-[7px] shrink-0 mr-2">
+          <Link href="/" className=" flex items-center gap-[4px] shrink-0 mr-2 text-[var(--logo-color)]">
             <PineTree />
-            <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '19px', fontWeight: 700, color: '#151E13', letterSpacing: '-0.01em' }}>
+            <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.01em' }}>
               El Árbol
             </span>
-          </a>
+          </Link>
 
           {/* Desktop links */}
-          <ul className="hidden md:flex items-center gap-7">
+          <ul className={`${newsreader.className} hidden md:flex items-center gap-7`}>            
             {navLinks.map(({ label, href, active }) => (
               <li key={label}>
-                <a
+                <Link
                   href={href}
-                  style={{ fontSize: '13.5px', fontWeight: active ? 600 : 500, color: active ? '#151E13' : '#3D4943', borderBottom: active ? '2px solid #00694C' : 'none', paddingBottom: active ? '2px' : '0' }}
+                  style={{ 
+                    fontSize: '16px',
+                    lineHeight: '20px',
+                    fontWeight: active ? 600 : 400,
+                    letterSpacing: '0px',
+                    color: active ? '#085041' : '#475569', 
+                    borderBottom: active ? '2px solid #1D9E75' : 'none', 
+                    paddingBottom: active ? '2px' : '0' 
+                  }}
                   className="transition-colors hover:text-[#151E13]"
                 >
                   {label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
 
           {/* Desktop right */}
-          <div className="hidden md:flex items-center gap-[10px] ml-auto">
+          <div className="hidden md:flex items-center gap-[8px] ml-auto">
 
             {/* Search pill */}
             <label className="flex items-center gap-[7px] bg-[#B0EFDB]/45 rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
@@ -80,14 +89,14 @@ export default function Navbar() {
             </button>
 
             {/* Log In */}
-            <a href="#" style={{ fontSize: '13.5px', fontWeight: 500, color: '#3D4943' }} className="px-3 py-2 hover:text-[#151E13] transition-colors">
+            <Link href="#" style={{ fontSize: '13.5px', fontWeight: 500, color: 'var(--common-color)',  }} className="ml-5 px-3 py-1.5 rounded-lg  border border-color-[var(--common-color)] hover:text-[#151E13] transition-colors" >
               Log In
-            </a>
+            </Link>
 
             {/* Sign Up */}
-            <a href="#" className="bg-[#00694C] text-white rounded-full hover:bg-[#085041] transition-colors" style={{ fontSize: '13.5px', fontWeight: 600, padding: '9px 22px' }}>
+            <Link href="#" className="bg-[#00694C] px-3.5 py-2 text-white rounded-lg hover:bg-[#085041] transition-colors" style={{ fontSize: '13.5px', fontWeight: 600}}>
               Sign Up
-            </a>
+            </Link>
           </div>
 
           {/* Mobile right */}
@@ -110,7 +119,7 @@ export default function Navbar() {
       {open && (
         <div className="fixed inset-0 top-[68px] bg-[#F5F5E8] z-40 px-6 pt-8 pb-10 flex flex-col md:hidden overflow-y-auto">
           {navLinks.map(({ label, href }) => (
-            <a
+            <Link
               key={label}
               href={href}
               onClick={() => setOpen(false)}
@@ -118,15 +127,15 @@ export default function Navbar() {
               style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1.5rem', fontWeight: 600, color: '#151E13' }}
             >
               {label}
-            </a>
+            </Link>
           ))}
           <div className="flex gap-3 mt-7">
-            <a href="#" className="flex-1 text-center border border-[#151E13] rounded-full" style={{ fontSize: '14px', fontWeight: 500, color: '#151E13', padding: '11px 0' }}>
+            <Link href="#" className="flex-1 text-center border border-[#151E13] rounded-full" style={{ fontSize: '14px', fontWeight: 500, color: '#151E13', padding: '11px 0' }}>
               Log In
-            </a>
-            <a href="#" className="flex-1 text-center bg-[#00694C] text-white rounded-full" style={{ fontSize: '14px', fontWeight: 500, padding: '11px 0' }}>
+            </Link>
+            <Link href="#" className="flex-1 text-center bg-[#00694C] text-white rounded-full" style={{ fontSize: '14px', fontWeight: 500, padding: '11px 0' }}>
               Sign Up
-            </a>
+            </Link>
           </div>
         </div>
       )}
