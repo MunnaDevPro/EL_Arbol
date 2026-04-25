@@ -62,7 +62,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-[8px] ml-auto">
 
             {/* Search pill */}
-            <label className="flex items-center gap-[7px] bg-[#B0EFDB]/45 rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
+            <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
               <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>

@@ -50,82 +50,152 @@ export default function HeroSection() {
   return (
     <section className="bg-[#FAFAF8]">
 
-      {/* ── Hero text ─────────────────────────────── */}
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pt-10 md:pt-16 pb-14 md:pb-15">
-        <div className="max-w-[600px]">
-
-          {/* Heading */}
+      {/* ── MOBILE Hero — full-bleed image ─────────────────── */}
+      <div className="md:hidden relative overflow-hidden" style={{ height: '420px' }}>
+        {/* Background image */}
+        <img
+          src="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop"
+          alt="Fresh produce"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%)',
+          }}
+        />
+        {/* Text + CTAs */}
+        <div className="absolute inset-0 flex flex-col justify-end px-5 pb-8">
           <h1
-            className="text-[#151E13] mb-5"
+            className="text-white mb-5"
             style={{
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: 'clamp(2.6rem, 4.2vw, 3rem)',
-              fontWeight: 650,
-              lineHeight: 1,
-              textShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',}}>
-            Fresh from the&nbsp;market,<br />
-            delivered to your&nbsp;door.
+              fontSize: '2rem',
+              fontWeight: 700,
+              lineHeight: 1.15,
+              textShadow: '0 2px 12px rgba(0,0,0,0.4)',
+            }}
+          >
+            Freshness from the<br />Orchard to Your Table.
           </h1>
-
-          {/* Paragraph */}
-          <p className="text-[#3D4943] mb-9"
-            style={{ fontSize: '15.5px', lineHeight: 1.72, maxWidth: '430px',textShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)', }}>
-            Experience the finest seasonal harvests sourced directly from local
-            growers. We bring the artisanal market experience to your kitchen.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex flex-col gap-3">
             <a
               href="#"
-              className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
+              className="block text-center text-white font-semibold rounded-lg"
               style={{
-                fontSize: '14px',
-                padding: '13px 30px',
-                boxShadow: '0 4px 18px rgba(0,105,76,0.28)',
+                background: '#00694C',
+                fontSize: '13.5px',
+                letterSpacing: '0.06em',
+                padding: '13px 0',
+                boxShadow: '0 4px 18px rgba(0,105,76,0.4)',
               }}
             >
-              Shop Now
+              SHOP NOW
             </a>
-
-            {/* Find My Store button */}
             <a
               href="#"
-              className="inline-flex items-center justify-center border border-color-[var(--common-color)] text-[var(--common-color)] font-semibold rounded-[8px] hover:text-[var(--logo-color)] transition-all duration-200"
+              className="block text-center text-white font-semibold rounded-lg"
               style={{
-                fontSize: '14px',
-                padding: '12px 30px',
-                borderColor: '#ECF7E4',
-                borderWidth: '1.5px',
+                border: '1.5px solid rgba(255,255,255,0.55)',
+                fontSize: '13.5px',
+                letterSpacing: '0.06em',
+                padding: '12px 0',
+                background: 'rgba(255,255,255,0.08)',
               }}
             >
-              Find My Store
+              FIND STORE
             </a>
           </div>
         </div>
       </div>
 
-      {/* ── Feature cards ─────────────────────────── */}
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pb-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* ── DESKTOP Hero — text + image side by side ─────── */}
+      <div className="hidden md:block max-w-[1280px] mx-auto px-6 lg:px-10 pb-14 md:pb-15">
+        <div className="flex items-center justify-between gap-10">
+
+          <div className="max-w-[600px] flex-shrink-0">
+            <h1
+              className="text-[#151E13] mb-5"
+              style={{
+                fontFamily: '"Playfair Display", Georgia, serif',
+                fontSize: 'clamp(2.6rem, 4.2vw, 3rem)',
+                fontWeight: 650,
+                lineHeight: 1,
+                textShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              Fresh from the&nbsp;market,<br />
+              delivered to your&nbsp;door.
+            </h1>
+
+            <p className="text-[#3D4943] mb-9"
+              style={{ fontSize: '15.5px', lineHeight: 1.52, maxWidth: '430px' }}>
+              Experience the finest seasonal harvests sourced directly from local
+              growers. We bring the artisanal market experience to your kitchen.
+            </p>
+
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <a
+                href="#"
+                className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  fontSize: '14px',
+                  padding: '13px 30px',
+                  boxShadow: '0 4px 18px rgba(0,105,76,0.28)',
+                }}
+              >
+                Shop Now
+              </a>
+              <a
+                href="#"
+                className="inline-flex items-center justify-center font-semibold rounded-[8px] hover:text-[var(--logo-color)] transition-all duration-200"
+                style={{
+                  fontSize: '14px',
+                  padding: '12px 30px',
+                  borderColor: '#ECF7E4',
+                  borderWidth: '3px',
+                  borderStyle: 'solid',
+                  color: 'var(--common-color)',
+                  boxShadow: '0 8px 12px -4px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                Find My Store
+              </a>
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <img
+              src="/homepage/hero_image.png"
+              alt="Fresh produce"
+              className="w-full h-auto object-contain"
+              style={{ maxHeight: '480px' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Feature cards ─────────────────────────────────── */}
+      {/* Desktop: 4 columns | Mobile: 2x2 grid */}
+      <div className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-10 pb-8 md:pb-10 pt-4 md:pt-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {features.map(({ title, sub, icon }) => (
             <div
               key={title}
               className="bg-white rounded-xl border border-[#BCCAC1]/30 flex items-center gap-3"
-              style={{ padding: '16px 18px', boxShadow: '0 1px 4px rgba(21,30,19,0.05)'}}
+              style={{ padding: '14px 16px', boxShadow: '0 1px 4px rgba(21,30,19,0.05)' }}
             >
               <span className="shrink-0">{icon}</span>
               <div>
-                <p style={{ fontSize: '13.5px', fontWeight: 600, color: '#151E13', lineHeight: 1.3 }}>{title}</p>
-                <p style={{ fontSize: '11.5px', color: '#6D7A73', lineHeight: 1.4, marginTop: '2px' }}>{sub}</p>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#151E13', lineHeight: 1.3 }}>{title}</p>
+                <p style={{ fontSize: '11px', color: '#6D7A73', lineHeight: 1.4, marginTop: '2px' }}>{sub}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Mobile full-bleed hero ─────────────────── */}
-      {/* (shown only on mobile below md breakpoint — using md:hidden on the separate mobile block) */}
     </section>
   )
 }

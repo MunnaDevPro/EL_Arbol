@@ -60,24 +60,41 @@ export default function MobileBottomNav() {
   const [active, setActive] = useState('home')
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-brand-light-muted/30 safe-area-bottom">
-      <div className="flex items-center justify-around px-2 py-2">
-        {navItems.map(({ id, label, icon }) => (
-          <button
-            key={id}
-            onClick={() => setActive(id)}
-            className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
-              active === id ? 'text-brand-green' : 'text-brand-muted'
-            }`}
-          >
-            {icon}
-            <span className={`text-[9px] font-semibold tracking-wider ${
-              active === id ? 'text-brand-green' : 'text-brand-muted'
-            }`}>
-              {label}
-            </span>
-          </button>
-        ))}
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t"
+      style={{
+        backgroundColor: '#ffffff',
+        borderColor: 'rgba(188,202,193,0.3)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
+    >
+      <div className="flex items-center justify-around px-1 py-2">
+        {navItems.map(({ id, label, icon }) => {
+          const isActive = active === id
+          return (
+            <button
+              key={id}
+              onClick={() => setActive(id)}
+              className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors min-w-0"
+              style={{
+                color: isActive ? '#00694C' : '#9BA8A2',
+              }}
+            >
+              {icon}
+              <span
+                style={{
+                  fontSize: '9px',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  color: isActive ? '#00694C' : '#9BA8A2',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </nav>
   )
