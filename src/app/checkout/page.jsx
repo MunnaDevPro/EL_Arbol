@@ -230,7 +230,7 @@ export default function CheckoutPage() {
                     <button
                       key={i}
                       onClick={() => setSelectedDate(i)}
-                      className="px-5 md:px-6 py-3 rounded-full text-sm flex-shrink-0 font-bold transition-all"
+                      className="px-5 cursor-pointer md:px-6 py-3 rounded-full text-sm flex-shrink-0 font-bold transition-all"
                       style={{
                         background: selectedDate === i ? '#d4ede5' : '#f0f4f0',
                         color: selectedDate === i ? '#095041' : '#3d4943',
@@ -298,7 +298,7 @@ export default function CheckoutPage() {
                   <button
                     key={method.id}
                     onClick={() => setPaymentMethod(method.id)}
-                    className="flex-1 p-3 md:p-4 rounded-xl flex items-center justify-center gap-2 md:gap-3 transition-all"
+                    className="flex-1 p-3 cursor-pointer md:p-4 rounded-xl flex items-center justify-center gap-2 md:gap-3 transition-all"
                     style={{
                       background: paymentMethod === method.id ? '#f0f8f4' : '#f5f5f5',
                       border: paymentMethod === method.id ? '2px solid #00694c' : '1.5px solid #e0e6e0',
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
                 {/* CTA */}
                 <button
                   onClick={handleOrder}
-                  className="w-full h-14 rounded-lg font-bold text-white uppercase tracking-widest text-sm transition-all hover:brightness-105 active:scale-[0.98]"
+                  className="w-full cursor-pointer h-14 rounded-lg font-bold text-white uppercase tracking-widest text-sm transition-all hover:brightness-105 active:scale-[0.98]"
                   style={{
                     background: 'linear-gradient(135deg, #00694c 0%, #008560 100%)',
                     boxShadow: '0 8px 24px -4px rgba(0,105,76,0.3)',

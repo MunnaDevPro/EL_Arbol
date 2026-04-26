@@ -161,7 +161,7 @@ export default function OrderConfirmationPage() {
         {/* Actions */}
         <section className="mt-10 space-y-3">
           <button
-            className="w-full py-4 rounded-lg font-bold uppercase tracking-widest text-sm text-white transition-all active:scale-[0.98]"
+            className="cursor-pointer w-full py-4 rounded-lg font-bold uppercase tracking-widest text-sm text-white transition-all active:scale-[0.98]"
             style={{
               background: 'linear-gradient(135deg, #00694c 0%, #008560 100%)',
               boxShadow: '0 8px 24px -4px rgba(0,105,76,0.25)',

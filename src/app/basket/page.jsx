@@ -82,7 +82,7 @@ export default function BasketPage() {
                   <button
                     key={mode.id}
                     onClick={() => setFulfillment(mode.id)}
-                    className="px-5 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all"
+                    className="px-5 cursor-pointer md:px-6 py-2 rounded-lg text-sm font-semibold transition-all"
                     style={{
                       background: fulfillment === mode.id ? '#ffffff' : 'transparent',
                       color: fulfillment === mode.id ? '#00694c' : '#3d4943',
@@ -150,14 +150,14 @@ export default function BasketPage() {
                             onMouseEnter={e => e.currentTarget.style.background = '#e2e8e2'}
                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                           >
-                            <span className="material-symbols-outlined text-[14px] md:text-[16px]">remove</span>
+                            <span className="cursor-pointer material-symbols-outlined text-[14px] md:text-[16px]">remove</span>
                           </button>
                           <span className="w-7 md:w-8 text-center font-bold text-sm md:text-base" style={{ color: '#151e13' }}>
                             {item.qty}
                           </span>
                           <button
                             onClick={() => updateQty(item.id, item.qty + 1)}
-                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded transition-colors"
+                            className="w-7 cursor-pointer  h-7 md:w-8 md:h-8 flex items-center justify-center rounded transition-colors"
                             style={{ color: '#3d4943' }}
                             onMouseEnter={e => e.currentTarget.style.background = '#e2e8e2'}
                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -168,7 +168,7 @@ export default function BasketPage() {
 
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="p-2 transition-colors"
+                          className="p-2 cursor-pointer transition-colors"
                           style={{ color: '#6d7a73' }}
                           onMouseEnter={e => e.currentTarget.style.color = '#ba1a1a'}
                           onMouseLeave={e => e.currentTarget.style.color = '#6d7a73'}
@@ -247,7 +247,7 @@ export default function BasketPage() {
                     style={{ background: '#ffffff', borderColor: '#e0e6e0', color: '#151e13' }}
                   />
                   <button
-                    className="px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                    className="px-4 py-2 cursor-pointer rounded-lg text-sm font-bold transition-colors"
                     style={{ background: '#151e13', color: '#ffffff' }}
                   >
                     Apply
@@ -258,7 +258,7 @@ export default function BasketPage() {
               {/* Checkout CTA */}
               <button
                 onClick={handleCheckout}
-                className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-lg font-bold text-white transition-all hover:brightness-105 active:scale-[0.98]"
+                className="w-full cursor-pointer flex items-center justify-center gap-3 py-4 md:py-5 rounded-lg font-bold text-white transition-all hover:brightness-105 active:scale-[0.98]"
                 style={{
                   background: 'linear-gradient(135deg, #00694c 0%, #008560 100%)',
                   boxShadow: '0 8px 24px -4px rgba(0,105,76,0.25)',
