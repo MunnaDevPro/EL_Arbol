@@ -62,16 +62,18 @@ export default function ProductCard({ product, notified, onNotify }) {
           <div className="flex items-center justify-between">
             {inStock ? (
               <>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl font-bold text-amber-500">€{price.toFixed(2)}</span>
-                  {oldPrice && (
-                    <span className="text-sm text-gray-400 line-through">€{oldPrice.toFixed(2)}</span>
-                  )}
-                </div>
-                {/* Stop link propagation on button click */}
-                <span onClick={(e) => e.preventDefault()}>
-                  <AddToCartButton product={product} inStock={inStock} />
-                </span>
+                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold text-amber-500">€{price.toFixed(2)}</span>
+                {oldPrice && (
+                  <span className="text-sm text-gray-400 line-through">€{oldPrice.toFixed(2)}</span>
+                )}
+              </div>
+              {/* Stop link propagation on button click */}
+              <span onClick={(e) => e.preventDefault()} className="w-full md:hidden  md:w-auto">
+                <AddToCartButton product={product} inStock={inStock} />
+              </span>
+            </div>
               </>
             ) : (
               <button
