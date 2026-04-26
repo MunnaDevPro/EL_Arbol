@@ -2,11 +2,12 @@
 import { newsreader } from '@/app/components/fonts'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useCart } from '@/app/context/CartContext'
 
 const navLinks = [
   { label: 'Shop',          href: '#', active: true },
   { label: 'Recipes',       href: '#' },
-  { label: 'Sustainability', href: '#' },
+  { label: 'Store', href: '#' },
   { label: 'About',         href: '#' },
 ]
 
@@ -21,6 +22,7 @@ function PineTree() {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const { totalItems, setSidebarOpen } = useCart()
 
   return (
     <>
@@ -64,9 +66,19 @@ export default function Navbar() {
             {/* Search pill */}
             <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
               <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
               </svg>
-              <span style={{ fontSize: '13px', color: '#6D7A73', whiteSpace: 'nowrap' }}>Search fresh produce...</span>
+              <input 
+                type="text"
+                placeholder="Search fresh produce..."
+                className="bg-transparent outline-none w-full placeholder:text-[#6D7A73]"
+                style={{ 
+                  fontSize: '13px', 
+                  color: '#6D7A73',
+                  border: 'none'
+                }} 
+              />
             </label>
 
             {/* Bell */}
@@ -77,15 +89,20 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* Cart */}
-            <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#BCCAC1]/25 transition-colors relative">
+            {/* Cart — only onChange: onClick opens CartSidebar, badge from context */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#BCCAC1]/25 transition-colors relative"
+            >
               <svg width="19" height="19" fill="none" stroke="#3D4943" strokeWidth="1.75" viewBox="0 0 24 24">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
-              <span className="absolute -top-0.5 -right-0.5 w-[17px] h-[17px] bg-[#00694C] text-white rounded-full flex items-center justify-center" style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1 }}>
-                2
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-[17px] h-[17px] bg-[#00694C] text-white rounded-full flex items-center justify-center" style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1 }}>
+                  {totalItems}
+                </span>
+              )}
             </button>
 
             {/* Log In */}
@@ -106,6 +123,23 @@ export default function Navbar() {
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
             </button>
+
+            {/* Mobile cart button */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="w-9 h-9 flex items-center justify-center relative"
+            >
+              <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="1.75" viewBox="0 0 24 24">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              {totalItems > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-[15px] h-[15px] bg-[#00694C] text-white rounded-full flex items-center justify-center" style={{ fontSize: '9px', fontWeight: 700, lineHeight: 1 }}>
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
             <button onClick={() => setOpen(!open)} className="w-9 h-9 flex items-center justify-center" aria-label="Menu">
               <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="2" viewBox="0 0 24 24">
                 {open ? <path d="M18 6 6 18M6 6l12 12"/> : <path d="M4 6h16M4 12h16M4 18h16"/>}

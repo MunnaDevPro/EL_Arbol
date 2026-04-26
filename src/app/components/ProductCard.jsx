@@ -10,7 +10,7 @@ export default function ProductCard({ product, notified, onNotify }) {
 
   return (
     <Link href={`/products/${slug}`} className="block group">
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 transition-shadow duration-200 group-hover:shadow-md group-hover:border-[#BCCAC1]/60">
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 transition-shadow duration-200">
 
         {/* ── Image ── */}
         <div className="relative h-40 md:h-48 overflow-hidden">
@@ -19,24 +19,21 @@ export default function ProductCard({ product, notified, onNotify }) {
             alt={name}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+            className="object-cover rounded-2xl transition-transform duration-300"
           />
 
-          {/* Category badge — left */}
           {badge && (
             <span className={`absolute top-3 left-3 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full ${badgeColor}`}>
               {badge}
             </span>
           )}
 
-          {/* Sale badge — right */}
           {onSale && (
             <span className="absolute top-3 right-3 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full bg-[#3B3A2E] text-[#E8E0BA]">
               SALE
             </span>
           )}
 
-          {/* Out-of-stock overlay */}
           {!inStock && (
             <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center">
               <span className="bg-white text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
@@ -48,8 +45,6 @@ export default function ProductCard({ product, notified, onNotify }) {
 
         {/* ── Info ── */}
         <div className="p-3.5 md:p-4">
-
-          {/* Name + Origin */}
           <div className="flex items-start justify-between gap-3 mb-1">
             <h3 className="font-sans font-bold text-gray-900 text-[15px] leading-snug flex-1 group-hover:text-[#00694C] transition-colors">
               {name}
@@ -62,10 +57,8 @@ export default function ProductCard({ product, notified, onNotify }) {
             )}
           </div>
 
-          {/* Unit */}
           {unit && <p className="text-[12px] text-gray-400 mb-3">{unit}</p>}
 
-          {/* Price + CTA */}
           <div className="flex items-center justify-between">
             {inStock ? (
               <>
@@ -77,7 +70,7 @@ export default function ProductCard({ product, notified, onNotify }) {
                 </div>
                 {/* Stop link propagation on button click */}
                 <span onClick={(e) => e.preventDefault()}>
-                  <AddToCartButton inStock={inStock} />
+                  <AddToCartButton product={product} inStock={inStock} />
                 </span>
               </>
             ) : (
@@ -96,7 +89,6 @@ export default function ProductCard({ product, notified, onNotify }) {
               </button>
             )}
           </div>
-
         </div>
       </div>
     </Link>
