@@ -89,6 +89,13 @@ function refreshMarkers(L, map) {
     const initMap = (L) => {
       if (mapRef.current) return
 
+      delete L.Icon.Default.prototype._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      })
+
       const center = userLocation ? [userLocation.lat, userLocation.lng] : [40.38, -3.76]
 
       const map = L.map(containerRef.current, {
@@ -98,9 +105,9 @@ function refreshMarkers(L, map) {
       })
 
       // Light OSM tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        opacity: 0.75,
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        opacity: 1,
       }).addTo(map)
 
       // Zoom control bottom-right

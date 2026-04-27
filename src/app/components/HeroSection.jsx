@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 const features = [
   {
     title: 'Same Day Delivery',
@@ -80,7 +82,7 @@ export default function HeroSection() {
             Freshness from the<br />Orchard to Your Table.
           </h1>
           <div className="flex flex-col gap-3">
-            <a
+            <Link
               href="#"
               className="block text-center text-white font-semibold rounded-lg"
               style={{
@@ -92,8 +94,8 @@ export default function HeroSection() {
               }}
             >
               SHOP NOW
-            </a>
-            <a
+            </Link>
+            <Link
               href="#"
               className="block text-center text-white font-semibold rounded-lg"
               style={{
@@ -105,7 +107,7 @@ export default function HeroSection() {
               }}
             >
               FIND STORE
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -136,8 +138,8 @@ export default function HeroSection() {
             </p>
 
             <div className="flex items-center gap-2.5 flex-wrap">
-              <a
-                href="#"
+              <Link
+                href=""
                 className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
                 style={{
                   fontSize: '14px',
@@ -146,9 +148,9 @@ export default function HeroSection() {
                 }}
               >
                 Shop Now
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/stores"
                 className="inline-flex items-center justify-center font-semibold rounded-[8px] hover:text-[var(--logo-color)] transition-all duration-200"
                 style={{
                   fontSize: '14px',
@@ -161,7 +163,7 @@ export default function HeroSection() {
                 }}
               >
                 Find My Store
-              </a>
+              </Link>
             </div>
           </div>
 
