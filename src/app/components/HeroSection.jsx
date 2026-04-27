@@ -96,7 +96,7 @@ export default function HeroSection() {
               SHOP NOW
             </Link>
             <Link
-              href="#"
+              href="/stores"
               className="block text-center text-white font-semibold rounded-lg"
               style={{
                 border: '1.5px solid rgba(255,255,255,0.55)',

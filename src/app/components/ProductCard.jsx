@@ -1,16 +1,21 @@
 // src/app/components/ProductCard.jsx
+'use client'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import AddToCartButton from '@/app/components/AddToCartButton'
 import { slugify } from '@/app/lib/slugify'
 
 export default function ProductCard({ product, notified, onNotify }) {
+  const  [isNavigating, setIsNavigating] = useState(false)
   const { name, badge, badgeColor, origin, unit, price, oldPrice, inStock, image, onSale } = product
   const slug = slugify(name)
 
   return (
-    <Link href={`/products/${slug}`} className="block group">
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 transition-shadow duration-200">
+    <Link href={`/products/${slug}`} className="block group" onClick={() => setIsNavigating(true)}>
+      <div className={`bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-200 ${
+        isNavigating ? 'opacity-60 scale-[0.98]' : ''
+      }`}>
 
         {/* ── Image ── */}
         <div className="relative h-40 md:h-48 overflow-hidden">

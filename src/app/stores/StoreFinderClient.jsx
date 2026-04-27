@@ -205,11 +205,11 @@ export default function StoreFinderClient() {
           style={{ width: '380px', flexShrink: 0, borderRight: '1px solid rgba(188,202,193,0.2)' }}
         >
           {/* Header */}
-          <div className="px-6 py-5" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
+          <div className="px-6 py-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
             <h1
               style={{
                 fontFamily: '"Playfair Display", Georgia, serif',
-                fontSize: '26px', fontWeight: 700, color: '#00694c', marginBottom: '3px',
+                fontSize: '26px', fontWeight: 700, color: '#00694c', marginBottom: '2px',
               }}
             >
               Market Finder
@@ -307,6 +307,7 @@ export default function StoreFinderClient() {
       flexShrink: 0,
       overflow: 'hidden',         // ← fixes thumb sliding off
       transition: 'background 0.2s ease',
+      cursor:'pointer'
     }}
   >
     <span
@@ -360,7 +361,9 @@ export default function StoreFinderClient() {
         </aside>
 
         {/* Map panel */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" style={{ position: 'sticky', top: '60px', height: 'calc(100vh - 60px)', width: '55%',          // তোমার যেটুকু দরকার
+    flexShrink: 0,
+    overflow: 'hidden' }}>
           <LeafletMap
             stores={filteredStores}
             activeStoreId={activeStore?.id}
