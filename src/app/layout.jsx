@@ -23,7 +23,13 @@ const manrope = Manrope({
 export const metadata = {
   title: 'The Digital Larder',
   description: 'Artisan produce, delivered with care.',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
+
+
 
 export default function RootLayout({ children }) {
   return (
