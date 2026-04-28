@@ -24,8 +24,8 @@ export const metadata = {
   title: 'The Digital Larder',
   description: 'Artisan produce, delivered with care.',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/favicon_orrange.jpeg', 
+    apple: '/favicon_orrange.jpeg', 
   },
 }
 

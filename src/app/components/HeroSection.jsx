@@ -83,7 +83,7 @@ export default function HeroSection() {
           </h1>
           <div className="flex flex-col gap-3">
             <Link
-              href="#"
+              href="/shop"
               className="block text-center text-white font-semibold rounded-lg"
               style={{
                 background: '#00694C',
@@ -139,7 +139,7 @@ export default function HeroSection() {
 
             <div className="flex items-center gap-2.5 flex-wrap">
               <Link
-                href=""
+                href="/shop"
                 className="inline-flex items-center justify-center bg-[#00694C] text-white font-semibold rounded-[8px] hover:bg-[#085041] transition-all duration-200 hover:-translate-y-0.5"
                 style={{
                   fontSize: '14px',

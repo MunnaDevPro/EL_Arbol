@@ -2,15 +2,14 @@
 import { newsreader } from '@/app/components/fonts'
 import Link from 'next/link'
 import { useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { useCart } from '@/app/context/CartContext'
-import AuthModal from '@/app/components/AuthModal'
+import AuthModal from '@/app/components/AuthModal'   // ← add this import
 
 const navLinks = [
-  { label: 'Shop',    href: '/shop' },
-  { label: 'Recipes', href: '/recipes' },
+  { label: 'Shop',    href: '/shop', active: true },
+  { label: 'Recipes', href: '#' },
   { label: 'Store',   href: '/stores' },
-  { label: 'About',   href: '/about' },
+  { label: 'About',   href: '#' },
 ]
 
 function PineTree() {
@@ -23,25 +22,17 @@ function PineTree() {
 }
 
 export default function Navbar() {
-  const [open, setOpen]       = useState(false)
-  const [authOpen, setAuthOpen] = useState(false)
-  const [authMode, setAuthMode] = useState('login')
+  const [open, setOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)          // ← new state
+  const [authMode, setAuthMode] = useState('login')        // ← new state
   const { totalItems, setSidebarOpen } = useCart()
-  const pathname = usePathname()
 
   const openLogin  = () => { setAuthMode('login');  setAuthOpen(true) }
   const openSignup = () => { setAuthMode('signup'); setAuthOpen(true) }
 
-  // A link is active if the current path starts with its href
-  // (so /shop/anything also keeps Shop highlighted)
-  function isActive(href) {
-    if (href === '/') return pathname === '/'
-    return pathname.startsWith(href)
-  }
-
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#FAFAF8] backdrop-blur-sm border-b border-[#BCCAC1]/35">
+      <header className="sticky top-0 z-50 border border-b-[1px] border-color-[var(--common-color)] bg-[#FAFAF8] backdrop-blur-sm border-b border-[#BCCAC1]/35">
         <nav className="max-w-[1280px] mx-auto px-6 lg:px-10 h-[60px] flex items-center gap-6">
 
           {/* Logo */}
@@ -54,31 +45,28 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <ul className={`${newsreader.className} hidden md:flex items-center gap-7`}>
-            {navLinks.map(({ label, href }) => {
-              const active = isActive(href)
-              return (
-                <li key={label}>
-                  <Link
-                    href={href}
-                    style={{
-                      fontSize: '16px', lineHeight: '20px',
-                      fontWeight: active ? 600 : 400,
-                      color: active ? '#085041' : '#475569',
-                      borderBottom: active ? '2px solid #1D9E75' : '2px solid transparent',
-                      paddingBottom: '2px',
-                      transition: 'color 0.15s, border-color 0.15s',
-                    }}
-                    className="hover:text-[#151E13]"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              )
-            })}
+            {navLinks.map(({ label, href, active }) => (
+              <li key={label}>
+                <Link
+                  href={href}
+                  style={{
+                    fontSize: '16px', lineHeight: '20px',
+                    fontWeight: active ? 600 : 400, letterSpacing: '0px',
+                    color: active ? '#085041' : '#475569',
+                    borderBottom: active ? '2px solid #1D9E75' : 'none',
+                    paddingBottom: active ? '2px' : '0',
+                  }}
+                  className="transition-colors hover:text-[#151E13]"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
 
           {/* Desktop right */}
           <div className="hidden md:flex items-center gap-[8px] ml-auto">
+
             {/* Search pill */}
             <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
               <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
@@ -109,15 +97,13 @@ export default function Navbar() {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
               {totalItems > 0 && (
-                <span
-                  className="absolute -top-0.5 -right-0.5 w-[17px] h-[17px] bg-[#00694C] text-white rounded-full flex items-center justify-center"
-                  style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1 }}
-                >
+                <span className="absolute -top-0.5 -right-0.5 w-[17px] h-[17px] bg-[#00694C] text-white rounded-full flex items-center justify-center" style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1 }}>
                   {totalItems}
                 </span>
               )}
             </button>
 
+            {/* Log In — now opens modal */}
             <button
               onClick={openLogin}
               style={{ fontSize: '13.5px', fontWeight: 500, color: 'var(--common-color)' }}
@@ -125,6 +111,8 @@ export default function Navbar() {
             >
               Log In
             </button>
+
+            {/* Sign Up — now opens modal */}
             <button
               onClick={openSignup}
               className="bg-[#00694C] px-3.5 py-2 text-white rounded-lg hover:bg-[#085041] transition-colors border-none cursor-pointer"
@@ -147,10 +135,7 @@ export default function Navbar() {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
               {totalItems > 0 && (
-                <span
-                  className="absolute -top-0.5 -right-0.5 w-[15px] h-[15px] bg-[#00694C] text-white rounded-full flex items-center justify-center"
-                  style={{ fontSize: '9px', fontWeight: 700, lineHeight: 1 }}
-                >
+                <span className="absolute -top-0.5 -right-0.5 w-[15px] h-[15px] bg-[#00694C] text-white rounded-full flex items-center justify-center" style={{ fontSize: '9px', fontWeight: 700, lineHeight: 1 }}>
                   {totalItems}
                 </span>
               )}
@@ -166,28 +151,16 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="fixed inset-0 top-[60px] bg-[#F5F5E8] z-40 px-6 pt-8 pb-10 flex flex-col md:hidden overflow-y-auto">
-          {navLinks.map(({ label, href }) => {
-            const active = isActive(href)
-            return (
-              <Link
-                key={label}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="border-b border-[#BCCAC1]/40 py-4 flex items-center justify-between"
-                style={{
-                  fontFamily: '"Playfair Display", Georgia, serif',
-                  fontSize: '1.5rem', fontWeight: 600,
-                  color: active ? '#00694C' : '#151E13',
-                }}
-              >
-                {label}
-                {active && (
-                  <span className="w-2 h-2 rounded-full bg-[#1D9E75]" />
-                )}
-              </Link>
-            )
-          })}
+        <div className="fixed inset-0 top-[68px] bg-[#F5F5E8] z-40 px-6 pt-8 pb-10 flex flex-col md:hidden overflow-y-auto">
+          {navLinks.map(({ label, href }) => (
+            <Link
+              key={label} href={href} onClick={() => setOpen(false)}
+              className="border-b border-[#BCCAC1]/40 py-4"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1.5rem', fontWeight: 600, color: '#151E13' }}
+            >
+              {label}
+            </Link>
+          ))}
           <div className="flex gap-3 mt-7">
             <button
               onClick={() => { setOpen(false); openLogin() }}
@@ -207,6 +180,7 @@ export default function Navbar() {
         </div>
       )}
 
+      {/* Auth Modal */}
       <AuthModal
         isOpen={authOpen}
         onClose={() => setAuthOpen(false)}

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { products, categories } from '@/app/data/products'
 import ProductCard from '@/app/components/ProductCard'
+import Link from 'next/link'
 
 export default function ProductGrid() {
   const [active, setActive] = useState('All')
@@ -67,8 +68,8 @@ export default function ProductGrid() {
           </h2>
 
           {/* See All — visible on both mobile and desktop */}
-          <a
-            href="#"
+          <Link
+            href="/shop"
             className="flex items-center gap-1 hover:underline"
             style={{ fontSize: '13px', fontWeight: 500, color: '#00694C', whiteSpace: 'nowrap' }}
           >
@@ -76,7 +77,7 @@ export default function ProductGrid() {
             <svg width="14" height="14" fill="none" stroke="#00694C" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </a>
+          </Link>
         </div>
 
         {/* ── Product grid ─────────────────────────────── */}

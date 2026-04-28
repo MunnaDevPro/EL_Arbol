@@ -1,5 +1,15 @@
 // src/app/data/stores.js
 
+
+
+export const FEATURE_LABELS = {
+    leftoverPack: 'Leftover Pack',
+    organic: 'Organic',
+    delivery: 'Delivery',
+    pickup: 'Click & Collect',
+}
+
+
 export const stores = [{
         id: 1,
         slug: 'mostoles-centro',
@@ -209,9 +219,4 @@ export function sortStoresByDistance(storeList, userLat, userLng) {
 export function formatDistance(km) {
     if (km == null) return null
     return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`
-}
-
-export const FEATURE_LABELS = {
-    leftoverPack: 'LEFTOVER PACK',
-    clickCollect: 'CLICK & COLLECT',
 }
