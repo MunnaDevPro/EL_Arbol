@@ -128,14 +128,14 @@ export default function CartSidebar() {
                     <div className="flex items-center bg-[#f0f4f0] rounded-lg p-0.5">
                       <button
                         onClick={() => updateQty(item.id, item.qty - 1)}
-                        className="w-7 h-7 flex items-center justify-center hover:bg-[#e2e8e2] rounded transition-colors"
+                        className="w-7 cursor-pointer h-7 flex items-center justify-center hover:bg-[#e2e8e2] rounded transition-colors"
                       >
                         <span className="material-symbols-outlined text-[16px]">remove</span>
                       </button>
                       <span className="w-7 text-center font-bold text-sm">{item.qty}</span>
                       <button
                         onClick={() => updateQty(item.id, item.qty + 1)}
-                        className="w-7 h-7 flex items-center justify-center hover:bg-[#e2e8e2] rounded transition-colors"
+                        className="w-7 cursor-pointer h-7 flex items-center justify-center hover:bg-[#e2e8e2] rounded transition-colors"
                       >
                         <span className="material-symbols-outlined text-[16px]">add</span>
                       </button>

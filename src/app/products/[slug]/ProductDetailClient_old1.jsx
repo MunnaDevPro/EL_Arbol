@@ -668,9 +668,8 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </div>
 
-      {/* ── TABS + RELATED (mobile & desktop) ───────────────────────── */}
-      {/* pb-36 on mobile = breathing room above sticky bottom bar     */}
-      <div className="max-w-[1280px] mx-auto px-4 lg:px-10 mt-8 lg:mt-16 pb-36 lg:pb-0">
+      {/* ── TABS + RELATED (desktop only) ────────────────────────────── */}
+      <div className="hidden lg:block max-w-[1280px] mx-auto px-6 lg:px-10 mt-16">
         <TabSection product={product} />
         <RelatedProducts related={related} />
       </div>

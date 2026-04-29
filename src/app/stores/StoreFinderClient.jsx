@@ -196,8 +196,8 @@ export default function StoreFinderClient() {
   // ─────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ══════════════════════════════════ DESKTOP ══════════════════════════════════ */}
-      <div className="hidden md:flex bg-white" style={{ height: 'calc(100vh - 60px)' }}>
+      {/*  DESKTOP  */}
+      <div className="hidden md:flex bg-white" style={{ height: 'calc(100vh - 10px)' }}>
 
         {/* Left sidebar */}
         <aside
@@ -205,7 +205,7 @@ export default function StoreFinderClient() {
           style={{ width: '380px', flexShrink: 0, borderRight: '1px solid rgba(188,202,193,0.2)' }}
         >
           {/* Header */}
-          <div className="px-6 py-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
+          <div className="px-6 py-2" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
             <h1
               style={{
                 fontFamily: '"Playfair Display", Georgia, serif',
@@ -218,135 +218,134 @@ export default function StoreFinderClient() {
           </div>
 
           {/* Search + filters */}
-         {/* Search + filters */}
-<div className="px-5 py-2 space-y-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
+          <div className="px-5 py-2 space-y-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
 
-  {/* Search input */}
-  <div className="relative flex items-center">
-    <span className="absolute left-3" style={{ color: '#6D7A73' }}>
-      <IconSearch />
-    </span>
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Search by city or street..."
-      className="w-full rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00694c]/30 transition-shadow"
-      style={{ background: '#ECF7E4', color: '#151e13', fontSize: '13px', border: 'none' }}
-    />
-    {searchQuery && (
-      <button
-        onClick={() => setSearchQuery('')}
-        className="absolute right-3 flex items-center justify-center w-4 h-4 rounded-full"
-        style={{ background: '#BCCAC1' }}
-      >
-        <svg width="8" height="8" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
-    )}
-  </div>
+            {/* Search input */}
+            <div className="relative flex items-center">
+              <span className="absolute left-3" style={{ color: '#6D7A73' }}>
+                <IconSearch />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by city or street..."
+                className="w-full rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00694c]/30 transition-shadow"
+                style={{ background: '#ECF7E4', color: '#151e13', fontSize: '13px', border: 'none' }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 flex items-center justify-center w-4 h-4 rounded-full"
+                  style={{ background: '#BCCAC1' }}
+                >
+                  <svg width="8" height="8" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
 
-  {/* Distance pills */}
-  <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
-    {DISTANCE_LABELS.map((label, i) => {
-      const val = DISTANCES[i]
-      const isActive = distanceFilter === val
-      const disabled = val !== null && !userLocation
+            {/* Distance pills */}
+            <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+              {DISTANCE_LABELS.map((label, i) => {
+                const val = DISTANCES[i]
+                const isActive = distanceFilter === val
+                const disabled = val !== null && !userLocation
 
-      return (
-        <button
-          key={label}
-          onClick={() => !disabled && setDistanceFilter(val)}
-          className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
-          style={{
-            background: isActive ? '#00694c' : '#ECF7E4',
-            color: isActive ? '#fff' : disabled ? '#BCCAC1' : '#3d4943',
-            border: 'none',
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            opacity: disabled ? 0.6 : 1,
-          }}
-        >
-          {label}
-        </button>
-      )
-    })}
-  </div>
+                return (
+                  <button
+                    key={label}
+                    onClick={() => !disabled && setDistanceFilter(val)}
+                    className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
+                    style={{
+                      background: isActive ? '#00694c' : '#ECF7E4',
+                      color: isActive ? '#fff' : disabled ? '#BCCAC1' : '#3d4943',
+                      border: 'none',
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                      opacity: disabled ? 0.6 : 1,
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
 
-  {/* Leftover Pack toggle */}
-{/* Leftover Pack toggle */}
-<button
-  onClick={() => setShowLeftoverOnly(!showLeftoverOnly)}
-  className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl transition-colors"
-  style={{
-    background: showLeftoverOnly ? '#E7F1DF' : '#ECF7E4',
-    border: `1.5px solid ${showLeftoverOnly ? 'rgba(0,105,76,0.2)' : 'transparent'}`,
-  }}
->
-  <div className="flex items-center gap-2.5">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ color: showLeftoverOnly ? '#00694c' : '#6D7A73' }}>
-      <path d="M17 8C8 10 5.9 16.17 3.82 19.3A10 10 0 0 0 19 5c-1-1-2-1.71-2-1.71V8z"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        fill={showLeftoverOnly ? 'rgba(0,105,76,0.15)' : 'none'}
-      />
-      <path d="M3.82 19.3C4 18 5 13 9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-    <span style={{ fontSize: '13px', color: showLeftoverOnly ? '#00694c' : '#151e13', fontWeight: 600 }}>
-      Show stores with Leftover Pack
-    </span>
-  </div>
+            {/* Leftover Pack toggle */}
+          {/* Leftover Pack toggle */}
+          <button
+            onClick={() => setShowLeftoverOnly(!showLeftoverOnly)}
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl transition-colors"
+            style={{
+              background: showLeftoverOnly ? '#E7F1DF' : '#ECF7E4',
+              border: `1.5px solid ${showLeftoverOnly ? 'rgba(0,105,76,0.2)' : 'transparent'}`,
+            }}
+          >
+            <div className="flex items-center gap-2.5">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ color: showLeftoverOnly ? '#00694c' : '#6D7A73' }}>
+                <path d="M17 8C8 10 5.9 16.17 3.82 19.3A10 10 0 0 0 19 5c-1-1-2-1.71-2-1.71V8z"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  fill={showLeftoverOnly ? 'rgba(0,105,76,0.15)' : 'none'}
+                />
+                <path d="M3.82 19.3C4 18 5 13 9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <span style={{ fontSize: '13px', color: showLeftoverOnly ? '#00694c' : '#151e13', fontWeight: 600 }}>
+                Show stores with Leftover Pack
+              </span>
+            </div>
 
-  {/* Toggle — overflow hidden keeps thumb inside */}
-  <div
-    style={{
-      position: 'relative',
-      width: '44px',
-      height: '24px',
-      borderRadius: '999px',
-      background: showLeftoverOnly ? '#00694c' : '#BCCAC1',
-      flexShrink: 0,
-      overflow: 'hidden',         // ← fixes thumb sliding off
-      transition: 'background 0.2s ease',
-      cursor:'pointer'
-    }}
-  >
-    <span
-      style={{
-        position: 'absolute',
-        top: '2px',
-        left: '2px',
-        width: '20px',
-        height: '20px',
-        borderRadius: '50%',
-        background: '#ffffff',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-        transform: showLeftoverOnly ? 'translateX(20px)' : 'translateX(0px)',
-        transition: 'transform 0.2s ease',
-      }}
-    />
-  </div>
-</button>
-  {/* Store count */}
-  <p style={{ fontSize: '12px', color: '#6D7A73' }}>
-    {locationLoading ? (
-      <span className="flex items-center gap-1.5">
-        <span
-          className="inline-block w-3 h-3 rounded-full border-2 border-[#00694c] border-t-transparent animate-spin"
-        />
-        Locating you…
-      </span>
-    ) : (
-      <>
-        <span style={{ fontWeight: 700, color: '#151e13' }}>{filteredStores.length}</span>
-        {' '}store{filteredStores.length !== 1 ? 's' : ''}{' '}
-        {userLocation ? 'near you' : 'available'}
-        {showLeftoverOnly && ' · Leftover Packs only'}
-        {distanceFilter && ` · within ${distanceFilter} km`}
-      </>
-    )}
-  </p>
+            {/* Toggle — overflow hidden keeps thumb inside */}
+            <div
+              style={{
+                position: 'relative',
+                width: '44px',
+                height: '24px',
+                borderRadius: '999px',
+                background: showLeftoverOnly ? '#00694c' : '#BCCAC1',
+                flexShrink: 0,
+                overflow: 'hidden',         // ← fixes thumb sliding off
+                transition: 'background 0.2s ease',
+                cursor:'pointer'
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: '2px',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                  transform: showLeftoverOnly ? 'translateX(20px)' : 'translateX(0px)',
+                  transition: 'transform 0.2s ease',
+                }}
+              />
+            </div>
+          </button>
+            {/* Store count */}
+            <p style={{ fontSize: '12px', color: '#6D7A73' }}>
+              {locationLoading ? (
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full border-2 border-[#00694c] border-t-transparent animate-spin"
+                  />
+                  Locating you…
+                </span>
+              ) : (
+                <>
+                  <span style={{ fontWeight: 700, color: '#151e13' }}>{filteredStores.length}</span>
+                  {' '}store{filteredStores.length !== 1 ? 's' : ''}{' '}
+                  {userLocation ? 'near you' : 'available'}
+                  {showLeftoverOnly && ' · Leftover Packs only'}
+                  {distanceFilter && ` · within ${distanceFilter} km`}
+                </>
+              )}
+            </p>
 
-</div>
+          </div>
 
           {/* Store list */}
           <div className="flex-1 overflow-y-auto">
@@ -362,9 +361,9 @@ export default function StoreFinderClient() {
 
         {/* Map panel */}
         <div className="flex-1 relative" style={{ position: 'sticky', top: '60px', height: 'calc(100vh - 60px)', width: '55%',          // তোমার যেটুকু দরকার
-    flexShrink: 0,
-    overflow: 'hidden' }}>
-          <LeafletMap
+          flexShrink: 0,
+          overflow: 'hidden' }}>
+                <LeafletMap
             stores={filteredStores}
             activeStoreId={activeStore?.id}
             userLocation={userLocation}
@@ -383,8 +382,8 @@ export default function StoreFinderClient() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════ MOBILE ═══════════════════════════════════ */}
-      <div className="md:hidden relative overflow-hidden bg-[#f2fdea]" style={{ height: 'calc(100vh - 60px)' }}>
+      {/*  MOBILE  */}
+      <div className="md:hidden relative overflow-hidden bg-[#f2fdea]" style={{ height: 'calc(100vh - 0px)' }}>
 
         {/* Full-screen map */}
         <div className="absolute inset-0 z-0">

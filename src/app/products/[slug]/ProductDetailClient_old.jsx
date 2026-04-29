@@ -1,10 +1,11 @@
 'use client'
 // src/app/products/[slug]/ProductDetailClient.jsx
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import ProductCard from '@/app/components/ProductCard'
 import Link from 'next/link'
+
 
 import { useCart } from '@/app/context/CartContext' 
 import {
@@ -226,11 +227,12 @@ function RelatedProducts({ related }) {
         <h2 style={{
           fontFamily: '"Newsreader", Georgia, serif',
           fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
-          fontWeight: 700,
+          fontWeight: 700, 
           color: '#151E13',
         }}>
           You might also enjoy
         </h2>
+        
         <Link href="/shop" className="hidden sm:flex items-center gap-1.5"
           style={{ fontSize: '13.5px', fontWeight: 600, color: '#00694C' }}>
           View All
@@ -238,9 +240,11 @@ function RelatedProducts({ related }) {
         </Link>
       </div>
 
+      {/* Grid layout for Product Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
         {related.map((p) => (
-          <ProductCard key={p.id} product={{ ...p, inStock: p.inStock ?? true }} />
+          <ProductCard key={p.id} product={{...p, inStock: p.inStock ?? true, }} 
+          />
         ))}
       </div>
     </section>
@@ -248,111 +252,72 @@ function RelatedProducts({ related }) {
 }
 
 
+
 // ─── Main Client Component ────────────────────────────────────────────────────
 export default function ProductDetailClient({ product, related }) {
 
-  const [added, setAdded]           = useState(false)
+  const [added, setAdded] = useState(false)
   const { addItem, setSidebarOpen } = useCart()
 
-  const [activeImg, setActiveImg]   = useState(0)
-  const [qty, setQty]               = useState(1)
+
+  const [activeImg, setActiveImg] = useState(0)
+  const [qty, setQty] = useState(1)
   const [fulfillment, setFulfillment] = useState('delivery')
   const [wishlisted, setWishlisted] = useState(false)
-
-  // ── Mobile gallery ref for scroll-sync ──
-  const galleryRef = useRef(null)
 
   const savePercent = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : null
 
-  function handleAddToCart() {
-    addItem(product)
-    setSidebarOpen(true)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
-  }
-
-  // ── Sync dots while user swipes ──
-  function handleGalleryScroll() {
-    if (!galleryRef.current) return
-    const { scrollLeft, clientWidth } = galleryRef.current
-    // each item occupies 85% of container width + 16px gap
-    const itemWidth = clientWidth * 0.85 + 16
-    const index = Math.round(scrollLeft / itemWidth)
-    setActiveImg(index)
-  }
-
-  // ── Scroll to image when dot is tapped ──
-  function scrollToImage(i) {
-    if (!galleryRef.current) return
-    const { clientWidth } = galleryRef.current
-    const itemWidth = clientWidth * 0.85 + 16
-    galleryRef.current.scrollTo({ left: i * itemWidth, behavior: 'smooth' })
-    setActiveImg(i)
+   function handleAddToCart() {
+      addItem(product)           // ← cart context এ item যাবে
+      setSidebarOpen(true)       // ← sidebar খুলবে
+      setAdded(true)             // ← button state change হবে
+      setTimeout(() => setAdded(false), 2000)  // ← 2s পর reset
   }
 
   const fulfillmentOptions = [
-    { id: 'delivery', label: 'Home Delivery',     sub: 'Today before 8:00 PM',  Icon: Truck      },
-    { id: 'collect',  label: 'Click & Collect',   sub: 'Ready in 2 hours',      Icon: Store      },
-    { id: 'instore',  label: 'In-Store Payment',  sub: 'Reserve for 24 hours',  Icon: CreditCard },
+    { id: 'delivery', label: 'Home Delivery', sub: 'Today before 8:00 PM', Icon: Truck },
+    { id: 'collect', label: 'Click & Collect', sub: 'Ready in 2 hours', Icon: Store },
+    { id: 'instore', label: 'In-Store Payment', sub: 'Reserve for 24 hours', Icon: CreditCard },
   ]
-
-  const images = product.images || [product.image]
 
   return (
     <main className="bg-[#F2FDEA] min-h-screen">
 
-      {/* ── MOBILE GALLERY (below lg) ─────────────────────────────────── */}
+  
+      {/* MOBILE GALLERY (below lg) */}
       <section className="lg:hidden px-4 mb-8 pt-3">
-        <div
-          ref={galleryRef}
-          onScroll={handleGalleryScroll}
-          className="flex gap-4 overflow-x-auto pb-0"
-          style={{ scrollbarWidth: 'none', scrollSnapType: 'x mandatory' }}
-        >
-          {images.map((img, i) => (
-            <div
-              key={i}
-              className="shrink-0 rounded-2xl overflow-hidden"
+        <div className="flex gap-4 overflow-x-auto pb-0"
+          style={{ scrollbarWidth: 'none', scrollSnapType: 'x mandatory' }}>
+          {(product.images || [product.image]).map((img, i) => (
+            <div key={i} className="shrink-0 rounded-2xl overflow-hidden "
               style={{
-                width: '85%',
-                aspectRatio: '3/4',
+                width: '85%', aspectRatio: '3/4',
                 scrollSnapAlign: 'center',
                 boxShadow: '0 24px 48px -12px rgba(0,33,21,0.12)',
-              }}
-            >
+              }}>
               <div className="relative w-full h-full">
-                <Image
-                  src={img}
-                  alt={product.name}
-                  fill
-                  className="object-cover cursor-pointer"
-                  sizes="85vw"
-                />
+                <Image src={img} alt={product.name} fill className="object-cover cursor-pointer" sizes="85vw " />
               </div>
             </div>
           ))}
         </div>
-
-        {/* Pagination dots — synced with scroll */}
+        {/* Pagination dots */}
         <div className="flex justify-center gap-1.5 mt-4">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => scrollToImage(i)}
-              className="rounded-full transition-all duration-300"
+          {(product.images || [product.image]).map((_, i) => (
+            <button key={i} onClick={() => setActiveImg(i)}
+              className="rounded-full transition-all"
               style={{
                 height: '6px',
                 width: i === activeImg ? '24px' : '6px',
                 background: i === activeImg ? '#00694C' : '#BCCAC1',
-              }}
-            />
+              }} />
           ))}
         </div>
       </section>
 
-      {/* ── MOBILE PRODUCT HEADER (below lg) ─────────────────────────── */}
+      {/*MOBILE PRODUCT HEADER (below lg) */}
       <header className="lg:hidden px-6 mb-8">
         <div className="flex items-center gap-3 mb-2">
           <span className="italic text-lg text-[#855000]"
@@ -384,7 +349,7 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </header>
 
-      {/* ── MOBILE EDITORIAL DESCRIPTION CARD (below lg) ─────────────── */}
+      {/*  MOBILE EDITORIAL DESCRIPTION CARD (below lg) */}
       <section className="lg:hidden px-6 mb-10">
         <div className="bg-[#ECF7E4] p-8 rounded-[2rem] relative overflow-hidden">
           <div className="relative z-10">
@@ -409,7 +374,8 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </section>
 
-      {/* ── MOBILE FULFILLMENT (below lg) ────────────────────────────── */}
+      {/* MOBILE FULFILLMENT (below lg) */}
+
       <section className="lg:hidden px-6 mb-10">
         <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#6D7A73] mb-4">Delivery &amp; Pickup</h4>
         <div className="space-y-3">
@@ -433,7 +399,8 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </section>
 
-      {/* ── MOBILE PROVENANCE CARD (below lg) ────────────────────────── */}
+      {/*  MOBILE PROVENANCE CARD (below lg) */}
+
       <section className="lg:hidden px-6 mb-6">
         <div className="bg-white p-6 rounded-3xl border border-[#BCCAC1]/20">
           <div className="flex items-center gap-4 mb-4">
@@ -454,7 +421,7 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </section>
 
-      {/* ── DESKTOP: BREADCRUMB + MAIN GRID (lg+) ────────────────────── */}
+      {/* DESKTOP: BREADCRUMB + MAIN GRID (lg+) */}
       <div className="hidden lg:block">
         {/* Breadcrumb */}
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 pt-6 pb-0">
@@ -471,21 +438,24 @@ export default function ProductDetailClient({ product, related }) {
 
             {/* LEFT: Image Gallery — 7 cols */}
             <div className="col-span-7 flex flex-col gap-4">
+              {/* Main image */}
               <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-white border border-[#BCCAC1]/20"
                 style={{ boxShadow: '0 24px 48px -12px rgba(0,33,21,0.08)' }}>
                 <Image
-                  src={images[activeImg] || images[0]}
+                  src={product.images?.[activeImg] || product.image}
                   alt={product.name}
                   fill
                   sizes="(max-width: 1280px) 58vw, 730px"
-                  className="object-cover mix-blend-multiply transition-opacity duration-300"
+                  className="object-cover  mix-blend-multiply transition-opacity duration-300"
                   priority
                 />
+           
               </div>
 
-              {images.length > 1 && (
+              {/* Thumbnails */}
+              {product.images?.length > 1 && (
                 <div className="grid grid-cols-4 gap-3">
-                  {images.map((img, i) => (
+                  {product.images.map((img, i) => (
                     <button key={i} onClick={() => setActiveImg(i)}
                       className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 bg-white"
                       style={{
@@ -503,6 +473,7 @@ export default function ProductDetailClient({ product, related }) {
             {/* RIGHT: Product Info — 5 cols */}
             <div className="col-span-5 flex flex-col gap-6">
 
+              {/* Name */}
               <div>
                 <h1 className="font-bold tracking-tight text-[#151E13] mb-2"
                   style={{
@@ -521,6 +492,7 @@ export default function ProductDetailClient({ product, related }) {
                 <StarRating rating={product.rating} reviews={product.reviews} size={16} />
               </div>
 
+              {/* Price block — accent left border */}
               <div className="bg-white p-6 rounded-md border-l-4 border-[#00694C] flex justify-between items-center"
                 style={{ boxShadow: '0 2px 8px rgba(0,33,21,0.04)' }}>
                 <div>
@@ -548,6 +520,7 @@ export default function ProductDetailClient({ product, related }) {
                 )}
               </div>
 
+              {/* Unit + Quantity */}
               <div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
@@ -591,6 +564,7 @@ export default function ProductDetailClient({ product, related }) {
                 </div>
               </div>
 
+              {/* Fulfillment */}
               <div>
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#6D7A73] block mb-3">
                   Fulfillment
@@ -600,7 +574,7 @@ export default function ProductDetailClient({ product, related }) {
                     <label key={opt.id}
                       className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
                       style={{
-                        background: 'white',
+                        background: fulfillment === opt.id ? 'white' : 'white',
                         border: `1px solid ${fulfillment === opt.id ? '#00694C' : '#BCCAC1'}`,
                         boxShadow: fulfillment === opt.id ? '0 0 0 1px #00694C20' : 'none',
                       }}>
@@ -621,41 +595,43 @@ export default function ProductDetailClient({ product, related }) {
                 </div>
               </div>
 
-              {product.inStock ? (
-                <button onClick={handleAddToCart}
-                  className="w-full cursor-pointer flex items-center justify-center gap-3 rounded-xl py-3 transition-all duration-200 shadow-sm"
-                  style={{
-                    background: added
-                      ? '#085041'
-                      : 'linear-gradient(135deg, #00694C 0%, #008560 100%)',
-                    color: 'white', fontSize: '16px', fontWeight: 700,
-                    letterSpacing: '0.05em',
-                  }}>
-                  {added
-                    ? <><Check size={19} /> Added to Cart</>
-                    : <><ShoppingCart size={19} /> Add to Cart</>
-                  }
-                </button>
-              ) : (
-                <button disabled
-                  className="w-full flex items-center justify-center gap-3 rounded-xl py-4 bg-gray-100 text-gray-400 cursor-not-allowed"
-                  style={{ fontSize: '16px', fontWeight: 700 }}>
-                  Out of Stock
-                </button>
-              )}
+                {/* Add to Cart */}
+                {product.inStock ? (
+                  <button onClick={handleAddToCart}
+                    className="w-full cursor-pointer flex items-center justify-center gap-3 rounded-xl py-3  transition-all duration-200 shadow-sm"
+                    style={{
+                      background: added
+                        ? '#085041'
+                        : 'linear-gradient(135deg, #00694C 0%, #008560 100%)',
+                      color: 'white', fontSize: '16px', fontWeight: 700,
+                      letterSpacing: '0.05em',
+                    }}>
+                    {added
+                      ? <><Check size={19} /> Added to Cart</>
+                      : <><ShoppingCart size={19} /> Add to Cart</>
+                    }
+                  </button>
+                ) : (
+                  <button disabled
+                    className="w-full flex items-center justify-center gap-3 rounded-xl cursor-pointer py-4 bg-gray-100 text-gray-400 cursor-not-allowed"
+                    style={{ fontSize: '16px', fontWeight: 700 }}>
+                    Out of Stock
+                  </button>
+                )}
 
-              {product.inStock && (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#00694C]" />
-                  <span className="text-xs font-medium text-[#00694C]">In Stock — 42 units available</span>
-                </div>
-              )}
+                {product.inStock && (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#00694C]" />
+                    <span className="text-xs font-medium text-[#00694C]">In Stock — 42 units available</span>
+                  </div>
+                )}
 
+              {/* Trust badges */}
               <div className="grid grid-cols-3 gap-2 border-t border-[#BCCAC1]/20 pt-4 mt-2">
                 {[
-                  { Icon: Zap,   label: 'Fresh Daily' },
-                  { Icon: Truck, label: 'Free > €40'  },
-                  { Icon: Lock,  label: 'Secure Pay'  },
+                  { Icon: Zap, label: 'Fresh Daily' },
+                  { Icon: Truck, label: 'Free > €40' },
+                  { Icon: Lock, label: 'Secure Pay' },
                 ].map((t) => (
                   <div key={t.label} className="flex flex-col items-center gap-1.5 py-2">
                     <t.Icon size={18} className="text-[#00694C] opacity-60" />
@@ -668,14 +644,13 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </div>
 
-      {/* ── TABS + RELATED (mobile & desktop) ───────────────────────── */}
-      {/* pb-36 on mobile = breathing room above sticky bottom bar     */}
-      <div className="max-w-[1280px] mx-auto px-4 lg:px-10 mt-8 lg:mt-16 pb-36 lg:pb-0">
+      {/* TABS + RELATED (desktop only via hidden lg:block wrapper) */}
+      <div className="hidden lg:block max-w-[1280px] mx-auto px-6 lg:px-10 mt-16">
         <TabSection product={product} />
         <RelatedProducts related={related} />
       </div>
 
-      {/* ── MOBILE STICKY BOTTOM BAR ─────────────────────────────────── */}
+      {/* MOBILE STICKY BOTTOM BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full z-50 px-5 pb-8 pt-4 bg-[#F2FDEA]/80 backdrop-blur-xl">
         <div className="flex items-center gap-5 max-w-md mx-auto">
           <div className="flex flex-col">
@@ -703,6 +678,7 @@ export default function ProductDetailClient({ product, related }) {
         </div>
       </div>
 
+  
     </main>
   )
 }

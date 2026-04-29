@@ -1,10 +1,11 @@
 'use client'
 import { newsreader } from '@/app/components/fonts'
 import Link from 'next/link'
-import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useState, useRef, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCart } from '@/app/context/CartContext'
 import AuthModal from '@/app/components/AuthModal'
+import { products } from '@/app/data/products'
 
 const navLinks = [
   { label: 'Shop',    href: '/shop' },
@@ -22,22 +23,90 @@ function PineTree() {
   )
 }
 
+// Helper: turn product name into slug (matches how your [slug] page likely works)
+function toSlug(name) {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+}
+
 export default function Navbar() {
-  const [open, setOpen]       = useState(false)
-  const [authOpen, setAuthOpen] = useState(false)
-  const [authMode, setAuthMode] = useState('login')
+  const [open, setOpen]           = useState(false)
+  const [authOpen, setAuthOpen]   = useState(false)
+  const [authMode, setAuthMode]   = useState('login')
+  const [query, setQuery]         = useState('')
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [activeIndex, setActiveIndex]   = useState(-1)
+
   const { totalItems, setSidebarOpen } = useCart()
-  const pathname = usePathname()
+  const pathname  = usePathname()
+  const router    = useRouter()
+  const inputRef  = useRef(null)
+  const dropdownRef = useRef(null)
 
   const openLogin  = () => { setAuthMode('login');  setAuthOpen(true) }
   const openSignup = () => { setAuthMode('signup'); setAuthOpen(true) }
 
-  // A link is active if the current path starts with its href
-  // (so /shop/anything also keeps Shop highlighted)
   function isActive(href) {
     if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
+
+  // Filter products based on query
+  const filtered = query.trim().length > 0
+    ? products.filter(p =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.category.toLowerCase().includes(query.toLowerCase()) ||
+        p.origin.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 6)
+    : []
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target) &&
+        inputRef.current && !inputRef.current.contains(e.target)
+      ) {
+        setShowDropdown(false)
+        setActiveIndex(-1)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function handleInputChange(e) {
+    setQuery(e.target.value)
+    setShowDropdown(true)
+    setActiveIndex(-1)
+  }
+
+  function handleKeyDown(e) {
+    if (!showDropdown || filtered.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIndex(i => Math.min(i + 1, filtered.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIndex(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault()
+      navigateToProduct(filtered[activeIndex])
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false)
+      setActiveIndex(-1)
+    }
+  }
+
+  function navigateToProduct(product) {
+  setQuery('')
+  setShowDropdown(false)
+  setActiveIndex(-1)
+  const slug = product.name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+  router.push(`/products/${slug}`)
+}
 
   return (
     <>
@@ -79,17 +148,107 @@ export default function Navbar() {
 
           {/* Desktop right */}
           <div className="hidden md:flex items-center gap-[8px] ml-auto">
-            {/* Search pill */}
-            <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
-              <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              <input
-                type="text" placeholder="Search fresh produce..."
-                className="bg-transparent outline-none w-full placeholder:text-[#6D7A73]"
-                style={{ fontSize: '13px', color: '#6D7A73', border: 'none' }}
-              />
-            </label>
+
+            {/* Search pill + dropdown wrapper */}
+            <div className="relative">
+              <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
+                <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Search fresh produce..."
+                  value={query}
+                  onChange={handleInputChange}
+                  onFocus={() => query.trim() && setShowDropdown(true)}
+                  onKeyDown={handleKeyDown}
+                  className="bg-transparent outline-none w-full placeholder:text-[#6D7A73]"
+                  style={{ fontSize: '13px', color: '#6D7A73', border: 'none' }}
+                />
+                {/* Clear button */}
+                {query && (
+                  <button
+                    onClick={() => { setQuery(''); setShowDropdown(false); inputRef.current?.focus() }}
+                    className="flex-shrink-0 text-[#6D7A73] hover:text-[#3D4943] transition-colors"
+                    style={{ lineHeight: 1 }}
+                  >
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                  </button>
+                )}
+              </label>
+
+              {/* Search Dropdown */}
+              {showDropdown && query.trim().length > 0 && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute left-0 top-[calc(100%+8px)] w-[280px] bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-[#BCCAC1]/40 overflow-hidden z-50"
+                  style={{ animation: 'dropdownFadeIn 0.15s ease' }}
+                >
+                  {filtered.length > 0 ? (
+                    <>
+                      <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-widest text-[#6D7A73] uppercase">
+                        Products
+                      </p>
+                      <ul>
+                        {filtered.map((product, idx) => (
+                          <li key={product.id}>
+                            <button
+                              onMouseEnter={() => setActiveIndex(idx)}
+                              onMouseLeave={() => setActiveIndex(-1)}
+                              onClick={() => navigateToProduct(product)}
+                              className="w-full text-left flex items-center gap-3 px-4 py-2.5 transition-colors cursor-pointer"
+                              style={{
+                                backgroundColor: activeIndex === idx ? '#F0FAF5' : 'transparent',
+                              }}
+                            >
+                              {/* Product thumbnail */}
+                              <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-[#ECF7E4]">
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                {/* Highlight matching part of name */}
+                                <p
+                                  className="text-[13.5px] font-medium text-[#151E13] truncate"
+                                  style={{ lineHeight: '18px' }}
+                                >
+                                  {highlightMatch(product.name, query)}
+                                </p>
+                                <p className="text-[11.5px] text-[#6D7A73]" style={{ lineHeight: '16px' }}>
+                                  {product.category} · {product.origin}
+                                </p>
+                              </div>
+                              <span className="text-[13px] font-semibold text-[#00694C] flex-shrink-0">
+                                €{product.price.toFixed(2)}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      {/* Footer hint */}
+                      <div className="border-t border-[#BCCAC1]/30 px-4 py-2.5">
+                        <button
+                          onClick={() => { router.push(`/shop?q=${encodeURIComponent(query)}`); setShowDropdown(false) }}
+                          className="text-[12px] text-[#1D9E75] font-medium hover:text-[#085041] transition-colors cursor-pointer bg-transparent border-none p-0"
+                        >
+                          See all results for "{query}" →
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="px-4 py-5 text-center">
+                      <p className="text-[13px] text-[#6D7A73]">No products found for <span className="font-medium text-[#151E13]">"{query}"</span></p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Bell */}
             <button className="w-9 cursor-pointer h-9 flex items-center justify-center rounded-full hover:bg-[#BCCAC1]/25 transition-colors">
@@ -207,11 +366,35 @@ export default function Navbar() {
         </div>
       )}
 
+      {/* Dropdown fade-in animation */}
+      <style jsx global>{`
+        @keyframes dropdownFadeIn {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
       <AuthModal
         isOpen={authOpen}
         onClose={() => setAuthOpen(false)}
         defaultMode={authMode}
       />
+    </>
+  )
+}
+
+// Highlight the matched portion of text
+function highlightMatch(text, query) {
+  if (!query) return text
+  const idx = text.toLowerCase().indexOf(query.toLowerCase())
+  if (idx === -1) return text
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark style={{ background: '#D1FAE5', color: '#085041', borderRadius: '2px', padding: '0 1px' }}>
+        {text.slice(idx, idx + query.length)}
+      </mark>
+      {text.slice(idx + query.length)}
     </>
   )
 }
