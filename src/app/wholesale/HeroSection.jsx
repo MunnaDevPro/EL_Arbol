@@ -160,7 +160,7 @@ export default function HeroSection({ onApplyClick }) {
           {/* ── RIGHT — image ── */}
           <div className="ws-hero-right">
             <div className="ws-hero-img-wrap">
-              <Image fill
+              <Image fill placeholder='blur'
                 src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=900&auto=format&fit=crop&q=85"
                 alt="Fresh premium produce — El Árbol wholesale"
               />

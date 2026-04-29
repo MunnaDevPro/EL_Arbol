@@ -68,7 +68,7 @@ export default function HeroSection() {
 
           {/* ── Right: image (large screens only) ── */}
           <div className="hero-img-wrap">
-            <Image
+            <Image placeholder='blur'
               src="/about/about_hero.png"
               alt="El Árbol — farm fresh produce"
               
