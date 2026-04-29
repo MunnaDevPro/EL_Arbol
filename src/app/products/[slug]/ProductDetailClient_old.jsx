@@ -222,8 +222,8 @@ function RelatedProducts({ related }) {
   if (!related?.length) return null
 
   return (
-    <section className="border-t border-[#BCCAC1]/30 pt-12 pb-24 lg:pb-20">
-      <div className="flex items-end justify-between mb-8">
+    <section className="border-t border-[#BCCAC1]/30 pt-4 pb-16 lg:pb-16">
+      <div className="flex items-end justify-between mb-4">
         <h2 style={{
           fontFamily: '"Newsreader", Georgia, serif',
           fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',

@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Recipes', href: '/recipes' },
   { label: 'Store',   href: '/stores' },
   { label: 'About',   href: '/about' },
+  { label: 'Wholesale',   href: '/wholesale' },
 ]
 
 function PineTree() {

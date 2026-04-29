@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 export default function LeafletMap({ stores, activeStoreId, userLocation, onStoreClick }) {
-  const containerRef = useRef(null)
-  const mapRef = useRef(null)
-  const markersRef = useRef({})
+  const containerRef  = useRef(null)
+  const mapRef        = useRef(null)
+  const markersRef    = useRef({})
   const userMarkerRef = useRef(null)
+  const destroyedRef  = useRef(false)   // ← guard against post-unmount callbacks
 
-  // ── Build a Leaflet divIcon matching the design ─────────────
+  // ── Build a Leaflet divIcon matching the design ──────────────
   function buildIcon(L, isActive) {
     const size = isActive ? 46 : 36
     return L.divIcon({
@@ -32,45 +33,46 @@ export default function LeafletMap({ stores, activeStoreId, userLocation, onStor
       iconAnchor: [size / 2, size],
       popupAnchor: [0, -size],
     })
-  }// ── Add / refresh all store markers ─────────────────────────
-function refreshMarkers(L, map) {
-    // Remove old markers
-    Object.values(markersRef.current).forEach((m) => map.removeLayer(m));
-    markersRef.current = {};
+  }
 
-    // Jodi stores na thake, tobe ekhanei return korbe, niche jabe na
-    if (!stores || !Array.isArray(stores)) return;
+  // ── Add / refresh all store markers ─────────────────────────
+  // useCallback so every effect always gets the latest stores/activeStoreId/onStoreClick
+  const refreshMarkers = useCallback((L, map) => {
+    Object.values(markersRef.current).forEach((m) => map.removeLayer(m))
+    markersRef.current = {}
+
+    if (!Array.isArray(stores) || stores.length === 0) return
 
     stores.forEach((store) => {
-        const isActive = store.id === activeStoreId;
-        const marker = L.marker([store.lat, store.lng], { icon: buildIcon(L, isActive) })
-            .addTo(map)
-            .on('click', () => onStoreClick(store.id));
+      const isActive = store.id === activeStoreId
+      const marker = L.marker([store.lat, store.lng], { icon: buildIcon(L, isActive) })
+        .addTo(map)
+        .on('click', () => onStoreClick?.(store.id))
 
-        // Label tooltip on hover
-        marker.bindTooltip(store.shortName, {
-            permanent: false,
-            direction: 'top',
-            className: 'leaflet-store-tooltip',
-            offset: [0, -4],
-        });
+      marker.bindTooltip(store.shortName, {
+        permanent: false,
+        direction: 'top',
+        className: 'leaflet-store-tooltip',
+        offset: [0, -4],
+      })
 
-        markersRef.current[store.id] = marker;
-    });
-}
+      markersRef.current[store.id] = marker
+    })
+  }, [stores, activeStoreId, onStoreClick]) // ← fresh closure every time deps change
+
   // ── Initialise map once ──────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current) return
+    destroyedRef.current = false
 
-    // Inject Leaflet CSS if not present
+    // Inject Leaflet CSS once
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link')
-      link.id = 'leaflet-css'
+      link.id  = 'leaflet-css'
       link.rel = 'stylesheet'
       link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
       document.head.appendChild(link)
 
-      // Inject custom tooltip style
       const style = document.createElement('style')
       style.textContent = `
         .leaflet-store-tooltip {
@@ -85,83 +87,102 @@ function refreshMarkers(L, map) {
       document.head.appendChild(style)
     }
 
-    // Load Leaflet JS (or reuse if already loaded)
     const initMap = (L) => {
-      if (mapRef.current) return
+      // Guard: component unmounted or map already created
+      if (destroyedRef.current || mapRef.current || !containerRef.current) return
 
-      delete L.Icon.Default.prototype._getIconUrl
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      })
+      try {
+        delete L.Icon.Default.prototype._getIconUrl
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          iconUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        })
 
-      const center = userLocation ? [userLocation.lat, userLocation.lng] : [40.38, -3.76]
+        const center = userLocation
+          ? [userLocation.lat, userLocation.lng]
+          : [40.38, -3.76]
 
-      const map = L.map(containerRef.current, {
-        center,
-        zoom: 11,
-        zoomControl: false,
-      })
+        const map = L.map(containerRef.current, {
+          center,
+          zoom: 11,
+          zoomControl: false,
+        })
 
-      // Light OSM tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO',
-        opacity: 1,
-      }).addTo(map)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '© OpenStreetMap © CARTO',
+          opacity: 1,
+        }).addTo(map)
 
-      // Zoom control bottom-right
-      L.control.zoom({ position: 'bottomright' }).addTo(map)
+        L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-      refreshMarkers(L, map)
+        refreshMarkers(L, map)
 
-      // User location dot
-      if (userLocation) {
-        userMarkerRef.current = L.circleMarker(
-          [userLocation.lat, userLocation.lng],
-          { radius: 9, fillColor: '#1D9E75', color: 'white', weight: 3, fillOpacity: 1 }
-        ).addTo(map).bindTooltip('You are here', { permanent: false })
+        if (userLocation) {
+          userMarkerRef.current = L.circleMarker(
+            [userLocation.lat, userLocation.lng],
+            { radius: 9, fillColor: '#1D9E75', color: 'white', weight: 3, fillOpacity: 1 }
+          ).addTo(map).bindTooltip('You are here', { permanent: false })
+        }
+
+        mapRef.current = map
+      } catch (err) {
+        console.error('[LeafletMap] init error:', err)
       }
-
-      mapRef.current = map
     }
 
     if (window.L) {
       initMap(window.L)
-    } else {
+    } else if (!document.getElementById('leaflet-js')) {
+      // Only inject the script once, even if this effect runs twice (StrictMode)
       const script = document.createElement('script')
+      script.id  = 'leaflet-js'
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
       script.onload = () => initMap(window.L)
+      script.onerror = () => console.error('[LeafletMap] Failed to load Leaflet JS')
       document.head.appendChild(script)
+    } else {
+      // Script tag exists but may still be loading — poll until ready
+      const poll = setInterval(() => {
+        if (window.L) { clearInterval(poll); initMap(window.L) }
+      }, 50)
+      setTimeout(() => clearInterval(poll), 10_000) // give up after 10 s
     }
 
     return () => {
+      destroyedRef.current = true
       if (mapRef.current) {
         mapRef.current.remove()
-        mapRef.current = null
+        mapRef.current    = null
         markersRef.current = {}
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Update markers when activeStoreId changes ────────────────
+  // ── Update markers when activeStoreId / stores change ───────
   useEffect(() => {
     if (!mapRef.current || !window.L) return
+
     refreshMarkers(window.L, mapRef.current)
 
-    // Pan to active store
-    const active = stores.find((s) => s.id === activeStoreId)
-    if (active) mapRef.current.panTo([active.lat, active.lng], { animate: true })
-  }, [activeStoreId]) // eslint-disable-line react-hooks/exhaustive-deps
+    // Pan to active store — safe guard with optional chaining
+    const active = stores?.find((s) => s.id === activeStoreId)
+    if (active) {
+      mapRef.current.panTo([active.lat, active.lng], { animate: true })
+    }
+  }, [activeStoreId, refreshMarkers]) // refreshMarkers already encodes stores
 
   // ── Add user marker when location arrives ────────────────────
   useEffect(() => {
     if (!mapRef.current || !window.L || !userLocation) return
+
     if (userMarkerRef.current) mapRef.current.removeLayer(userMarkerRef.current)
+
     userMarkerRef.current = window.L.circleMarker(
       [userLocation.lat, userLocation.lng],
       { radius: 9, fillColor: '#1D9E75', color: 'white', weight: 3, fillOpacity: 1 }
     ).addTo(mapRef.current).bindTooltip('You are here')
+
     mapRef.current.setView([userLocation.lat, userLocation.lng], 12, { animate: true })
   }, [userLocation])
 

@@ -1,3 +1,14 @@
+import Link from "next/link"
+
+const navLinks = [
+  { label: 'Shop all',    href: '/shop' },
+  { label: 'Recipes', href: '/recipes' },
+  { label: 'Store',   href: '/stores' },
+  { label: 'About',   href: '/about' },
+  { label: 'Wholesale',   href: '/wholesale' },
+]
+
+
 export default function Footer() {
   return (
     <footer className="bg-[#085041] text-white">
@@ -88,14 +99,19 @@ export default function Footer() {
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-xs font-semibold tracking-widest text-white/50 uppercase mb-5">Quick Links</h4>
-              <ul className="space-y-3">
-                {['Shop All', 'Wholesale', 'Leftover Pack', 'Sustainability', 'Recipes'].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-sm text-white/70 hover:text-white transition-colors">{item}</a>
-                  </li>
-                ))}
-              </ul>
+                <h4 className="text-xs font-semibold tracking-widest text-white/50 uppercase mb-5">Quick Links</h4>
+                <ul className="space-y-3">
+                  {navLinks.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href} 
+                        className="text-sm text-white/70 hover:text-white transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
             </div>
 
             {/* Stores */}
