@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import heroImg from '../../../public/about/about_hero.png';
 
 export default function HeroSection({ onApplyClick }) {
   return (
@@ -161,7 +162,7 @@ export default function HeroSection({ onApplyClick }) {
           <div className="ws-hero-right">
             <div className="ws-hero-img-wrap">
               <Image fill placeholder='blur'
-                src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=900&auto=format&fit=crop&q=85"
+                src={heroImg}
                 alt="Fresh premium produce — El Árbol wholesale"
               />
 

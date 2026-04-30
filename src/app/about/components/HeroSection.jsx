@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import aboutHero from '../../../../public/about/about_hero.png';
 
 export default function HeroSection() {
   return (
@@ -69,7 +70,7 @@ export default function HeroSection() {
           {/* ── Right: image (large screens only) ── */}
           <div className="hero-img-wrap">
             <Image placeholder='blur'
-              src="/about/about_hero.png"
+              src={aboutHero}
               alt="El Árbol — farm fresh produce"
               
               fill

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
@@ -14,10 +14,10 @@ import {
 
 const LeafletMap = dynamic(() => import('./LeafletMap'), { ssr: false })
 
-const DISTANCES = [2, 5, 10, null]
+const DISTANCES       = [2, 5, 10, null]
 const DISTANCE_LABELS = ['2 km', '5 km', '10 km', 'All stores']
 
-// ── Icon helpers ────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────────
 const IconSearch = () => (
   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -45,38 +45,60 @@ const IconChevron = () => (
 )
 const IconFilter = () => (
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="10" y1="18" x2="14" y2="18" />
+    <line x1="4" y1="6" x2="20" y2="6" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+    <line x1="10" y1="18" x2="14" y2="18" />
   </svg>
 )
 
+// ─────────────────────────────────────────────────────────────────────────────
 export default function StoreFinderClient() {
-  const [userLocation, setUserLocation] = useState(null)
-  const [sortedStores, setSortedStores] = useState(stores)
-  const [activeStoreId, setActiveStoreId] = useState(stores[0].id)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [distanceFilter, setDistanceFilter] = useState(null)
-  const [showLeftoverOnly, setShowLeftoverOnly] = useState(false)
-  const [locationLoading, setLocationLoading] = useState(true)
+  const [userLocation,        setUserLocation]        = useState(null)
+  const [sortedStores,        setSortedStores]        = useState(stores)
+  const [activeStoreId,       setActiveStoreId]       = useState(stores[0].id)
+  const [searchQuery,         setSearchQuery]         = useState('')
+  const [distanceFilter,      setDistanceFilter]      = useState(null)
+  const [showLeftoverOnly,    setShowLeftoverOnly]    = useState(false)
+  const [locationLoading,     setLocationLoading]     = useState(false)
   const [bottomSheetExpanded, setBottomSheetExpanded] = useState(false)
 
-  // ── Geolocation on mount ──────────────────────────────────────
-  useEffect(() => {
-    if (!navigator.geolocation) { setLocationLoading(false); return }
+  const geoRequested = useRef(false)
+
+  // ── Fetch user location ────────────────────────────────────────────────────
+  const fetchLocation = useCallback(() => {
+    if (!navigator.geolocation || geoRequested.current) return
+    geoRequested.current = true
+    setLocationLoading(true)
+
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        const loc = { lat: coords.latitude, lng: coords.longitude }
-        setUserLocation(loc)
+        const loc    = { lat: coords.latitude, lng: coords.longitude }
         const sorted = sortStoresByDistance(stores, loc.lat, loc.lng)
+        setUserLocation(loc)
         setSortedStores(sorted)
         setActiveStoreId(sorted[0].id)
         setLocationLoading(false)
       },
-      () => setLocationLoading(false),
+      () => {
+        // denied or unavailable — fail silently, no error shown
+        geoRequested.current = false
+        setLocationLoading(false)
+      },
       { timeout: 8000 }
     )
   }, [])
 
-  // ── Filter pipeline ───────────────────────────────────────────
+  // Auto-request on mount
+  useEffect(() => { fetchLocation() }, [fetchLocation])
+
+  // ── Distance pill click ────────────────────────────────────────────────────
+  function handleDistanceClick(val) {
+    setDistanceFilter(val)
+    // If no location yet, try fetching — filter will apply once location arrives
+    if (val && !userLocation) fetchLocation()
+  }
+
+  // ── Filter pipeline ────────────────────────────────────────────────────────
   const filteredStores = sortedStores.filter((store) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
@@ -86,7 +108,8 @@ export default function StoreFinderClient() {
         !store.address.toLowerCase().includes(q)
       ) return false
     }
-    if (distanceFilter && userLocation) {
+    // Distance filter only applies when we actually have the user's location
+    if (distanceFilter && userLocation && store.lat != null) {
       if (haversineDistance(userLocation.lat, userLocation.lng, store.lat, store.lng) > distanceFilter)
         return false
     }
@@ -94,27 +117,73 @@ export default function StoreFinderClient() {
     return true
   })
 
-  const activeStore = filteredStores.find((s) => s.id === activeStoreId) ?? filteredStores[0]
+  const activeStore = filteredStores.find((s) => s.id === activeStoreId) || filteredStores[0]
 
   function getDist(store) {
-    if (!userLocation) return null
+    if (!userLocation || store.lat == null) return null
     return haversineDistance(userLocation.lat, userLocation.lng, store.lat, store.lng)
   }
 
-  // ── Store card (used in desktop sidebar + mobile sheet) ──────
+  // ── Distance pills component ───────────────────────────────────────────────
+  function DistancePills({ mobile = false }) {
+    return (
+      <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {DISTANCE_LABELS.map((label, i) => {
+          const val      = DISTANCES[i]
+          const isActive = distanceFilter === val
+          const spinning = locationLoading && val !== null && !userLocation && distanceFilter === val
+
+          return (
+            <button
+              key={label}
+              onClick={() => handleDistanceClick(val)}
+              className="shrink-0 flex items-center gap-1.5 rounded-full font-semibold transition-all"
+              style={{
+                padding:    mobile ? '8px 16px' : '6px 16px',
+                fontSize:   mobile ? '14px' : '12px',
+                background: isActive
+                  ? '#00694c'
+                  : mobile ? 'rgba(255,255,255,0.95)' : '#ECF7E4',
+                color:      isActive ? '#fff' : '#3d4943',
+                border:     'none',
+                cursor:     'pointer',
+                boxShadow:  mobile ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              {spinning && (
+                <span
+                  style={{
+                    display: 'inline-block', width: 12, height: 12,
+                    borderRadius: '50%',
+                    border: `2px solid ${isActive ? 'rgba(255,255,255,0.4)' : 'rgba(0,105,76,0.3)'}`,
+                    borderTopColor: isActive ? '#fff' : '#00694c',
+                    animation: 'spin 0.7s linear infinite',
+                  }}
+                />
+              )}
+              {label}
+            </button>
+          )
+        })}
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  // ── Store card ─────────────────────────────────────────────────────────────
   function StoreCard({ store, compact = false }) {
     const isActive = store.id === activeStoreId
-    const dist = getDist(store)
-    const open = isStoreOpen(store)
+    const dist     = getDist(store)
+    const open     = isStoreOpen(store)
 
     return (
       <div
         onClick={() => { setActiveStoreId(store.id); if (compact) setBottomSheetExpanded(false) }}
         className="cursor-pointer transition-colors"
         style={{
-          borderLeft: `4px solid ${isActive ? '#00694c' : 'transparent'}`,
-          background: isActive ? 'rgba(0,105,76,0.04)' : 'white',
-          padding: compact ? '12px 0' : '20px',
+          borderLeft:   `4px solid ${isActive ? '#00694c' : 'transparent'}`,
+          background:   isActive ? 'rgba(0,105,76,0.04)' : 'white',
+          padding:      compact ? '12px 0' : '20px',
           borderBottom: '1px solid rgba(188,202,193,0.15)',
         }}
       >
@@ -145,7 +214,7 @@ export default function StoreFinderClient() {
               className="px-2 py-0.5 rounded text-[10px] font-bold"
               style={{
                 background: f === 'leftoverPack' ? '#FFF8ED' : '#E7F1DF',
-                color: f === 'leftoverPack' ? '#855000' : '#00694c',
+                color:      f === 'leftoverPack' ? '#855000' : '#00694c',
               }}
             >
               {FEATURE_LABELS[f]}
@@ -193,38 +262,30 @@ export default function StoreFinderClient() {
     )
   }
 
-  // ─────────────────────────────────────────────────────────────
+  // ── Render 
   return (
     <>
-      {/*  DESKTOP  */}
+      {/* ── DESKTOP  */}
       <div className="hidden md:flex bg-white" style={{ height: 'calc(100vh - 10px)' }}>
 
-        {/* Left sidebar */}
         <aside
           className="flex flex-col overflow-hidden bg-white"
           style={{ width: '380px', flexShrink: 0, borderRight: '1px solid rgba(188,202,193,0.2)' }}
         >
           {/* Header */}
           <div className="px-6 py-2" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
-            <h1
-              style={{
-                fontFamily: '"Playfair Display", Georgia, serif',
-                fontSize: '26px', fontWeight: 700, color: '#00694c', marginBottom: '2px',
-              }}
-            >
+            <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '26px', fontWeight: 700, color: '#00694c', marginBottom: '2px' }}>
               Market Finder
             </h1>
             <p style={{ fontSize: '13px', color: '#6D7A73' }}>Find fresh produce near you</p>
           </div>
 
-          {/* Search + filters */}
-          <div className="px-5 py-2 space-y-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
+          {/* Filters */}
+          <div className="px-5 py-3 space-y-3" style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}>
 
-            {/* Search input */}
+            {/* Search */}
             <div className="relative flex items-center">
-              <span className="absolute left-3" style={{ color: '#6D7A73' }}>
-                <IconSearch />
-              </span>
+              <span className="absolute left-3" style={{ color: '#6D7A73' }}><IconSearch /></span>
               <input
                 type="text"
                 value={searchQuery}
@@ -246,92 +307,39 @@ export default function StoreFinderClient() {
               )}
             </div>
 
-            {/* Distance pills */}
-            <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
-              {DISTANCE_LABELS.map((label, i) => {
-                const val = DISTANCES[i]
-                const isActive = distanceFilter === val
-                const disabled = val !== null && !userLocation
+            <DistancePills />
 
-                return (
-                  <button
-                    key={label}
-                    onClick={() => !disabled && setDistanceFilter(val)}
-                    className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
-                    style={{
-                      background: isActive ? '#00694c' : '#ECF7E4',
-                      color: isActive ? '#fff' : disabled ? '#BCCAC1' : '#3d4943',
-                      border: 'none',
-                      cursor: disabled ? 'not-allowed' : 'pointer',
-                      opacity: disabled ? 0.6 : 1,
-                    }}
-                  >
-                    {label}
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Leftover Pack toggle */}
-          {/* Leftover Pack toggle */}
-          <button
-            onClick={() => setShowLeftoverOnly(!showLeftoverOnly)}
-            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl transition-colors"
-            style={{
-              background: showLeftoverOnly ? '#E7F1DF' : '#ECF7E4',
-              border: `1.5px solid ${showLeftoverOnly ? 'rgba(0,105,76,0.2)' : 'transparent'}`,
-            }}
-          >
-            <div className="flex items-center gap-2.5">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ color: showLeftoverOnly ? '#00694c' : '#6D7A73' }}>
-                <path d="M17 8C8 10 5.9 16.17 3.82 19.3A10 10 0 0 0 19 5c-1-1-2-1.71-2-1.71V8z"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  fill={showLeftoverOnly ? 'rgba(0,105,76,0.15)' : 'none'}
-                />
-                <path d="M3.82 19.3C4 18 5 13 9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              <span style={{ fontSize: '13px', color: showLeftoverOnly ? '#00694c' : '#151e13', fontWeight: 600 }}>
-                Show stores with Leftover Pack
-              </span>
-            </div>
-
-            {/* Toggle — overflow hidden keeps thumb inside */}
-            <div
+            {/* Leftover toggle */}
+            <button
+              onClick={() => setShowLeftoverOnly(!showLeftoverOnly)}
+              className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl transition-colors"
               style={{
-                position: 'relative',
-                width: '44px',
-                height: '24px',
-                borderRadius: '999px',
-                background: showLeftoverOnly ? '#00694c' : '#BCCAC1',
-                flexShrink: 0,
-                overflow: 'hidden',         // ← fixes thumb sliding off
-                transition: 'background 0.2s ease',
-                cursor:'pointer'
+                background: showLeftoverOnly ? '#E7F1DF' : '#ECF7E4',
+                border: `1.5px solid ${showLeftoverOnly ? 'rgba(0,105,76,0.2)' : 'transparent'}`,
               }}
             >
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '2px',
-                  left: '2px',
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  background: '#ffffff',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                  transform: showLeftoverOnly ? 'translateX(20px)' : 'translateX(0px)',
-                  transition: 'transform 0.2s ease',
-                }}
-              />
-            </div>
-          </button>
-            {/* Store count */}
+              <div className="flex items-center gap-2.5">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ color: showLeftoverOnly ? '#00694c' : '#6D7A73' }}>
+                  <path d="M17 8C8 10 5.9 16.17 3.82 19.3A10 10 0 0 0 19 5c-1-1-2-1.71-2-1.71V8z"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    fill={showLeftoverOnly ? 'rgba(0,105,76,0.15)' : 'none'}
+                  />
+                  <path d="M3.82 19.3C4 18 5 13 9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span style={{ fontSize: '13px', color: showLeftoverOnly ? '#00694c' : '#151e13', fontWeight: 600 }}>
+                  Show stores with Leftover Pack
+                </span>
+              </div>
+              <div style={{ position: 'relative', width: '44px', height: '24px', borderRadius: '999px', background: showLeftoverOnly ? '#00694c' : '#BCCAC1', flexShrink: 0, overflow: 'hidden', transition: 'background 0.2s ease', cursor: 'pointer' }}>
+                <span style={{ position: 'absolute', top: '2px', left: '2px', width: '20px', height: '20px', borderRadius: '50%', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transform: showLeftoverOnly ? 'translateX(20px)' : 'translateX(0px)', transition: 'transform 0.2s ease' }} />
+              </div>
+            </button>
+
+            {/* Count */}
             <p style={{ fontSize: '12px', color: '#6D7A73' }}>
               {locationLoading ? (
                 <span className="flex items-center gap-1.5">
-                  <span
-                    className="inline-block w-3 h-3 rounded-full border-2 border-[#00694c] border-t-transparent animate-spin"
-                  />
+                  <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', border: '2px solid #00694c', borderTopColor: 'transparent', animation: 'spin 0.7s linear infinite' }} />
                   Locating you…
                 </span>
               ) : (
@@ -340,36 +348,43 @@ export default function StoreFinderClient() {
                   {' '}store{filteredStores.length !== 1 ? 's' : ''}{' '}
                   {userLocation ? 'near you' : 'available'}
                   {showLeftoverOnly && ' · Leftover Packs only'}
-                  {distanceFilter && ` · within ${distanceFilter} km`}
+                  {distanceFilter  && ` · within ${distanceFilter} km`}
                 </>
               )}
             </p>
-
           </div>
 
           {/* Store list */}
           <div className="flex-1 overflow-y-auto">
             {filteredStores.length === 0 ? (
-              <p className="p-6 text-center" style={{ fontSize: '14px', color: '#6D7A73' }}>
-                No stores match your filters.
-              </p>
+              <div className="p-6 text-center">
+                <p style={{ fontSize: '14px', color: '#6D7A73', marginBottom: '10px' }}>
+                  No stores match your filters.
+                </p>
+                <button
+                  onClick={() => { setDistanceFilter(null); setShowLeftoverOnly(false); setSearchQuery('') }}
+                  className="px-4 py-2 rounded-full text-sm font-bold"
+                  style={{ background: '#ECF7E4', color: '#00694c' }}
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               filteredStores.map((store) => <StoreCard key={store.id} store={store} />)
             )}
           </div>
         </aside>
 
-        {/* Map panel */}
-        <div className="flex-1 relative" style={{ position: 'sticky', top: '60px', height: 'calc(100vh - 60px)', width: '55%',          // তোমার যেটুকু দরকার
-          flexShrink: 0,
-          overflow: 'hidden' }}>
-                <LeafletMap
+        {/* Map */}
+        {/* <div className="flex-1 relative" style={{ overflow: 'hidden' }}> */}
+        <div className="flex-1 relative" style={{ overflow: 'hidden', isolation: 'isolate' }}>
+
+          <LeafletMap
             stores={filteredStores}
             activeStoreId={activeStore?.id}
             userLocation={userLocation}
             onStoreClick={setActiveStoreId}
           />
-          {/* Floating badge */}
           <div
             className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full"
             style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)', border: '1px solid rgba(188,202,193,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
@@ -382,10 +397,9 @@ export default function StoreFinderClient() {
         </div>
       </div>
 
-      {/*  MOBILE  */}
-      <div className="md:hidden relative overflow-hidden bg-[#f2fdea]" style={{ height: 'calc(100vh - 0px)' }}>
+      {/* ── MOBILE  */}
+    <div className="md:hidden relative overflow-hidden" style={{ height: '100dvh', background: '#f2fdea', isolation: 'isolate', overflowY: 'hidden', position: 'fixed', width: '100%', top: 0, left: 0 }}>
 
-        {/* Full-screen map */}
         <div className="absolute inset-0 z-0">
           <LeafletMap
             stores={filteredStores}
@@ -395,7 +409,7 @@ export default function StoreFinderClient() {
           />
         </div>
 
-        {/* Floating search + filter pills */}
+        {/* Floating top bar */}
         <div className="absolute top-4 left-4 right-4 z-10 space-y-3">
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-2xl"
@@ -413,69 +427,87 @@ export default function StoreFinderClient() {
             <span className="text-[#6D7A73]"><IconFilter /></span>
           </div>
 
+          {/* Mobile filter pills */}
           <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            {['Near me', '2 km', '5 km', 'Open Now', 'Leftover Pack'].map((label, i) => {
-              const isActive = i === 0 && !distanceFilter && !showLeftoverOnly
+            {/* Near me */}
+            <button
+              onClick={() => handleDistanceClick(null)}
+              className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold"
+              style={{
+                background: distanceFilter === null && !showLeftoverOnly ? '#00694c' : 'rgba(255,255,255,0.95)',
+                color:      distanceFilter === null && !showLeftoverOnly ? '#fff' : '#3d4943',
+                boxShadow:  '0 1px 4px rgba(0,0,0,0.1)',
+                cursor:     'pointer',
+              }}
+            >
+              Near me
+            </button>
+
+            {/* km pills */}
+            {[2, 5, 10].map((km) => {
+              const isActive = distanceFilter === km
+              const spinning = locationLoading && isActive && !userLocation
               return (
                 <button
-                  key={label}
-                  className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold"
+                  key={km}
+                  onClick={() => handleDistanceClick(km)}
+                  className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold"
                   style={{
                     background: isActive ? '#00694c' : 'rgba(255,255,255,0.95)',
-                    color: isActive ? '#fff' : '#3d4943',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                  }}
-                  onClick={() => {
-                    if (label === '2 km') setDistanceFilter(2)
-                    else if (label === '5 km') setDistanceFilter(5)
-                    else if (label === 'Near me') setDistanceFilter(null)
-                    else if (label === 'Leftover Pack') setShowLeftoverOnly(!showLeftoverOnly)
+                    color:      isActive ? '#fff' : '#3d4943',
+                    boxShadow:  '0 1px 4px rgba(0,0,0,0.1)',
+                    cursor:     'pointer',
                   }}
                 >
-                  {label}
+                  {spinning && (
+                    <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spin 0.7s linear infinite' }} />
+                  )}
+                  {km} km
                 </button>
               )
             })}
+
+            {/* Leftover Pack */}
+            <button
+              onClick={() => setShowLeftoverOnly(!showLeftoverOnly)}
+              className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold"
+              style={{
+                background: showLeftoverOnly ? '#855000' : 'rgba(255,255,255,0.95)',
+                color:      showLeftoverOnly ? '#fff' : '#3d4943',
+                boxShadow:  '0 1px 4px rgba(0,0,0,0.1)',
+                cursor:     'pointer',
+              }}
+            >
+              Leftover Pack
+            </button>
           </div>
         </div>
 
         {/* Bottom sheet */}
         {activeStore && (
           <div
-            className="absolute bottom-0 left-0 right-0 z-20 rounded-t-3xl overflow-hidden"
+            className="absolute bottom-0 left-0 right-0 z-20 rounded-t-3xl"
             style={{
               background: '#fff',
-              boxShadow: '0 -8px 40px rgba(0,33,21,0.12)',
-              transform: bottomSheetExpanded ? 'translateY(0)' : 'translateY(calc(100% - 230px))',
+              boxShadow:  '0 -8px 40px rgba(0,33,21,0.12)',
+              transform:  bottomSheetExpanded ? 'translateY(0)' : 'translateY(calc(100% - 52vh))',
               transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
-              maxHeight: '85vh',
-              overflowY: bottomSheetExpanded ? 'auto' : 'hidden',
+              maxHeight:  '85vh',
+              overflowY:  'auto',
+              overscrollBehavior: 'contain',
             }}
           >
-            {/* Drag handle */}
-            <div
-              className="flex justify-center pt-3 pb-1 cursor-pointer"
-              onClick={() => setBottomSheetExpanded(!bottomSheetExpanded)}
-            >
+            <div className="flex justify-center pt-3 pb-1 cursor-pointer" onClick={() => setBottomSheetExpanded(!bottomSheetExpanded)}>
               <div className="w-10 h-1 rounded-full" style={{ background: '#BCCAC1' }} />
             </div>
 
-            {/* Active store header */}
             <div className="px-5 pb-4">
               <div className="flex items-start justify-between mb-3">
                 <div style={{ flex: 1, paddingRight: '12px' }}>
-                  <span
-                    className="block text-[10px] font-bold uppercase tracking-widest mb-1"
-                    style={{ color: '#00694c' }}
-                  >
+                  <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#00694c' }}>
                     {userLocation ? 'Closest to you' : 'Featured store'}
                   </span>
-                  <h2
-                    style={{
-                      fontFamily: '"Playfair Display", Georgia, serif',
-                      fontSize: '21px', fontWeight: 700, color: '#151e13', lineHeight: 1.2,
-                    }}
-                  >
+                  <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '21px', fontWeight: 700, color: '#151e13', lineHeight: 1.2 }}>
                     {activeStore.name}
                   </h2>
                   <div className="flex items-center gap-1.5 mt-1">
@@ -484,10 +516,7 @@ export default function StoreFinderClient() {
                   </div>
                 </div>
                 {getDist(activeStore) !== null && (
-                  <div
-                    className="shrink-0 px-3 py-2 rounded-xl text-center"
-                    style={{ background: '#ECF7E4' }}
-                  >
+                  <div className="shrink-0 px-3 py-2 rounded-xl text-center" style={{ background: '#ECF7E4' }}>
                     <span className="block font-bold leading-none" style={{ fontSize: '20px', color: '#151e13' }}>
                       {getDist(activeStore)?.toFixed(1)}
                     </span>
@@ -496,29 +525,16 @@ export default function StoreFinderClient() {
                 )}
               </div>
 
-              {/* Status + directions */}
               <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                  style={{ background: isStoreOpen(activeStore) ? '#E7F1DF' : '#FEE2E2' }}
-                >
-                  <div
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: isStoreOpen(activeStore) ? '#00694c' : '#e11d48' }}
-                  />
-                  <span
-                    style={{
-                      fontSize: '12px', fontWeight: 600,
-                      color: isStoreOpen(activeStore) ? '#00694c' : '#e11d48',
-                    }}
-                  >
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: isStoreOpen(activeStore) ? '#E7F1DF' : '#FEE2E2' }}>
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: isStoreOpen(activeStore) ? '#00694c' : '#e11d48' }} />
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: isStoreOpen(activeStore) ? '#00694c' : '#e11d48' }}>
                     {isStoreOpen(activeStore) ? `Open until ${activeStore.closeTime}` : 'Closed'}
                   </span>
                 </div>
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${activeStore.lat},${activeStore.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1 font-bold"
                   style={{ fontSize: '13px', color: '#855000' }}
                 >
@@ -526,7 +542,6 @@ export default function StoreFinderClient() {
                 </a>
               </div>
 
-              {/* CTA buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <Link
                   href={`/stores/${activeStore.slug}`}
@@ -545,41 +560,36 @@ export default function StoreFinderClient() {
               </div>
             </div>
 
-            {/* Expanded: other stores list */}
             <div className="px-5 pt-4" style={{ borderTop: '1px solid rgba(188,202,193,0.2)' }}>
-              <h3
-                style={{
-                  fontFamily: '"Playfair Display", Georgia, serif',
-                  fontSize: '18px', fontStyle: 'italic', color: '#151e13', marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '18px', fontStyle: 'italic', color: '#151e13', marginBottom: '8px' }}>
                 Other locations near you
               </h3>
               <div className="pb-6">
-                {filteredStores
-                  .filter((s) => s.id !== activeStore.id)
-                  .map((store) => (
-                    <div
-                      key={store.id}
-                      onClick={() => { setActiveStoreId(store.id); setBottomSheetExpanded(false) }}
-                      className="flex items-center justify-between py-3 cursor-pointer"
-                      style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}
-                    >
-                      <div>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#151e13' }}>{store.name}</h4>
-                        <p style={{ fontSize: '12px', color: '#6D7A73', marginTop: '2px' }}>
-                          {getDist(store) ? formatDistance(getDist(store)) + ' · ' : ''}
-                          {isStoreOpen(store) ? `Closes ${store.closeTime}` : 'Closed'}
-                        </p>
-                      </div>
-                      <span className="text-[#BCCAC1]"><IconChevron /></span>
+                {filteredStores.filter((s) => s.id !== activeStore.id).map((store) => (
+                  <div
+                    key={store.id}
+                    onClick={() => { setActiveStoreId(store.id); setBottomSheetExpanded(false) }}
+                    className="flex items-center justify-between py-3 cursor-pointer"
+                    style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}
+                  >
+                    <div>
+                      <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#151e13' }}>{store.name}</h4>
+                      <p style={{ fontSize: '12px', color: '#6D7A73', marginTop: '2px' }}>
+                        {getDist(store) ? formatDistance(getDist(store)) + ' · ' : ''}
+                        {isStoreOpen(store) ? `Closes ${store.closeTime}` : 'Closed'}
+                      </p>
                     </div>
-                  ))}
+                    <span className="text-[#BCCAC1]"><IconChevron /></span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Global spin keyframe */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </>
   )
 }
