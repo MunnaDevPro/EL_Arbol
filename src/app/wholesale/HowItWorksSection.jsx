@@ -148,37 +148,78 @@ export default function HowItWorksSection() {
           </div>
 
           {/* Guarantee bar */}
-          <div style={{
-            marginTop: '44px',
-            background: 'linear-gradient(135deg, #071a10 0%, #0a2a1c 100%)',
-            borderRadius: '14px',
-            padding: '20px 24px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            gap: '16px', flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(93,217,168,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="18" height="18" fill="none" stroke="#5dd9a8" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              </div>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>No long-term commitment required</p>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.42)', margin: 0 }}>Rolling monthly arrangement. Upgrade or pause anytime.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-              {['48h setup', 'Cancel anytime', 'No setup fee'].map((t, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <svg width="13" height="13" fill="none" stroke="#5dd9a8" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path d="M20 6 9 17l-5-5" />
-                  </svg>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>{t}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Guarantee bar */}
+<div style={{
+  marginTop: '44px',
+  background: 'linear-gradient(135deg, #071a10 0%, #0a2a1c 100%)',
+  borderRadius: '14px',
+  padding: '20px 24px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '16px',
+  flexWrap: 'wrap',
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 auto', minWidth: 0 }}>
+    <div style={{
+      width: '40px', height: '40px', borderRadius: '10px',
+      background: 'rgba(93,217,168,0.12)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    }}>
+      <svg width="18" height="18" fill="none" stroke="#5dd9a8" strokeWidth="2" viewBox="0 0 24 24">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    </div>
+    <div style={{ minWidth: 0 }}>
+      <p style={{ fontSize: '13px', fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>
+        No long-term commitment required
+      </p>
+      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.42)', margin: 0, lineHeight: 1.5 }}>
+        Rolling monthly arrangement. Upgrade or pause anytime.
+      </p>
+    </div>
+  </div>
+
+  {/* checkmarks — grid on mobile, flex row on desktop */}
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '8px 0',
+    width: '100%',
+  }}
+    className="guarantee-checks"
+  >
+    {['48h setup', 'Cancel anytime', 'No setup fee'].map((t, i) => (
+      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <svg width="13" height="13" fill="none" stroke="#5dd9a8" strokeWidth="2.5" viewBox="0 0 24 24">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>{t}</span>
+      </div>
+    ))}
+  </div>
+
+  <style>{`
+    @media (min-width: 640px) {
+      .guarantee-checks {
+        display: flex !important;
+        width: auto !important;
+        gap: 20px !important;
+        flex: 1 1 auto;
+        justify-content: flex-end;
+      }
+    }
+    @media (max-width: 639px) {
+      .guarantee-checks {
+        grid-template-columns: repeat(3, 1fr) !important;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding-top: 14px;
+        margin-top: 4px;
+      }
+    }
+  `}</style>
+</div>
 
         </div>
       </section>

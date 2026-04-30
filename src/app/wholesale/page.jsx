@@ -52,23 +52,18 @@ export default function WholesalePage() {
     borderRadius: '12px',
     fontWeight: 700,
     fontSize: '15px',
-    // শুরুতে হালকা কালো (Dark Grayish Black)
     color: '#4a4a4a', 
     cursor: 'pointer',
     background: 'linear-gradient(135deg, #5dd9a8 0%, #3fcf8e 100%)',
-    // শুরুতে বাটনের নিজের শ্যাডো
     boxShadow: '0 4px 20px rgba(93,217,168,0.2)',
     border: 'none',
     transition: 'all 0.2s ease',
   }}
   onMouseEnter={e => {
-    // hover করলে একদম গাঢ় কালো হবে
     e.currentTarget.style.color = '#000000'; 
-    // হালকা একটা শ্যাডো ইফেক্ট
     e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.12)';
   }}
   onMouseLeave={e => {
-    // আগের অবস্থায় ফিরে যাবে
     e.currentTarget.style.color = '#4a4a4a'; 
     e.currentTarget.style.boxShadow = '0 4px 20px rgba(93,217,168,0.2)';
   }}
