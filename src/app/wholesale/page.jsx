@@ -42,25 +42,44 @@ export default function WholesalePage() {
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: 1.7 }}>
             Apply in 5 minutes. First delivery within 48 hours of approval.
           </p>
-          <button
-            onClick={() => setModalOpen(true)}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '10px',
-              padding: '15px 32px', borderRadius: '12px', fontWeight: 700,
-              fontSize: '15px', color: '#061812', cursor: 'pointer',
-              background: 'linear-gradient(135deg, #5dd9a8 0%, #3fcf8e 100%)',
-              boxShadow: '0 4px 28px rgba(93,217,168,0.3)',
-              border: 'none',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 36px rgba(93,217,168,0.4)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 28px rgba(93,217,168,0.3)' }}
-          >
-            Apply for a Wholesale Account
-            <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </button>
+         <button
+  onClick={() => setModalOpen(true)}
+  style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '15px 32px',
+    borderRadius: '12px',
+    fontWeight: 700,
+    fontSize: '15px',
+    // শুরুতে হালকা কালো (Dark Grayish Black)
+    color: '#4a4a4a', 
+    cursor: 'pointer',
+    background: 'linear-gradient(135deg, #5dd9a8 0%, #3fcf8e 100%)',
+    // শুরুতে বাটনের নিজের শ্যাডো
+    boxShadow: '0 4px 20px rgba(93,217,168,0.2)',
+    border: 'none',
+    transition: 'all 0.2s ease',
+  }}
+  onMouseEnter={e => {
+    // hover করলে একদম গাঢ় কালো হবে
+    e.currentTarget.style.color = '#000000'; 
+    // হালকা একটা শ্যাডো ইফেক্ট
+    e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.12)';
+  }}
+  onMouseLeave={e => {
+    // আগের অবস্থায় ফিরে যাবে
+    e.currentTarget.style.color = '#4a4a4a'; 
+    e.currentTarget.style.boxShadow = '0 4px 20px rgba(93,217,168,0.2)';
+  }}
+>
+  <span className="hidden md:inline">Apply for a Wholesale Account</span>
+  <span className="inline md:hidden">Apply</span>
+
+  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+</button>
           <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', marginTop: '14px' }}>
             Minimum order €400/month · No setup fee · Cancel anytime
           </p>
