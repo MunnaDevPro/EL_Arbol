@@ -153,7 +153,7 @@ export default function ProductListingClient() {
         <input
           type="range" min={0} max={50} value={priceMax}
           onChange={e => setPriceMax(Number(e.target.value))}
-          className="w-full" style={{ accentColor: '#00694c', height: '4px' }}
+          className="w-full cursor-pointer" style={{ accentColor: '#00694c', height: '4px' }}
         />
         <div className="flex justify-between mt-3">
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#151e13' }}>€0</span>

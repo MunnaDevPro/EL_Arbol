@@ -19,7 +19,7 @@ export default function WholesalePage() {
       <HowItWorksSection />
 
       {/* Floating CTA bar */}
-      <div style={{
+      {/* <div style={{
         background: 'linear-gradient(135deg, #0a2218 0%, #0f3d27 100%)',
         padding: '56px 40px',
         textAlign: 'center',
@@ -79,7 +79,7 @@ export default function WholesalePage() {
             Minimum order €400/month · No setup fee · Cancel anytime
           </p>
         </div>
-      </div>
+      </div> */}
 
       <WholesaleModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </>

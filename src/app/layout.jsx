@@ -60,10 +60,12 @@ export default function RootLayout({ children }) {
           <Navbar />
           <main style={{ background: '#ffffff', minHeight: '100vh' }} className=" md:pb-0">
             {children}
+            
           </main>
-          <Footer />
+          
           <CartSidebar />
         </CartProvider>
+        <Footer />
       </body>
     </html>
   )
