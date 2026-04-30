@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Footer from '@/app/components/Footer'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
@@ -398,7 +399,7 @@ export default function StoreFinderClient() {
       </div>
 
       {/* ── MOBILE  */}
-    <div className="md:hidden relative overflow-hidden" style={{ height: '100dvh', background: '#f2fdea', isolation: 'isolate', overflowY: 'hidden', position: 'fixed', width: '100%', top: 0, left: 0 }}>
+    <div className="md:hidden relative overflow-hidden" style={{ height: '100dvh', background: '#f2fdea', isolation: 'isolate', overflowY: 'hidden', position: 'absolute', width: '100%', top: 0, left: 0 }}>
 
         <div className="absolute inset-0 z-0">
           <LeafletMap
@@ -492,9 +493,9 @@ export default function StoreFinderClient() {
               boxShadow:  '0 -8px 40px rgba(0,33,21,0.12)',
               transform:  bottomSheetExpanded ? 'translateY(0)' : 'translateY(calc(100% - 52vh))',
               transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
-              maxHeight:  '85vh',
+              height:  '60vh',
               overflowY:  'auto',
-              overscrollBehavior: 'contain',
+              overscrollBehavior: 'contain',   // ← add this
             }}
           >
             <div className="flex justify-center pt-3 pb-1 cursor-pointer" onClick={() => setBottomSheetExpanded(!bottomSheetExpanded)}>
@@ -565,28 +566,37 @@ export default function StoreFinderClient() {
                 Other locations near you
               </h3>
               <div className="pb-6">
-                {filteredStores.filter((s) => s.id !== activeStore.id).map((store) => (
-                  <div
-                    key={store.id}
-                    onClick={() => { setActiveStoreId(store.id); setBottomSheetExpanded(false) }}
-                    className="flex items-center justify-between py-3 cursor-pointer"
-                    style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}
-                  >
-                    <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#151e13' }}>{store.name}</h4>
-                      <p style={{ fontSize: '12px', color: '#6D7A73', marginTop: '2px' }}>
-                        {getDist(store) ? formatDistance(getDist(store)) + ' · ' : ''}
-                        {isStoreOpen(store) ? `Closes ${store.closeTime}` : 'Closed'}
-                      </p>
+                  {filteredStores.filter((s) => s.id !== activeStore.id).map((store) => (
+                    <div
+                      key={store.id}
+                      onClick={() => { setActiveStoreId(store.id); setBottomSheetExpanded(false) }}
+                      className="flex items-center justify-between py-3 cursor-pointer"
+                      style={{ borderBottom: '1px solid rgba(188,202,193,0.15)' }}
+                    >
+                      <div>
+                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#151e13' }}>{store.name}</h4>
+                        <p style={{ fontSize: '12px', color: '#6D7A73', marginTop: '2px' }}>
+                          {getDist(store) ? formatDistance(getDist(store)) + ' · ' : ''}
+                          {isStoreOpen(store) ? `Closes ${store.closeTime}` : 'Closed'}
+                        </p>
+                      </div>
+                      <span className="text-[#BCCAC1]"><IconChevron /></span>
                     </div>
-                    <span className="text-[#BCCAC1]"><IconChevron /></span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+
+
+        
             </div>
+                    {/* ↓ Footer inside bottom sheet so it's reachable on scroll */}
+              <div style={{ borderTop: '1px solid rgba(188,202,193,0.2)', marginTop: '8px' }}>
+                <Footer />   {/* your existing Footer component */}
+              </div>
           </div>
         )}
       </div>
+      
 
       {/* Global spin keyframe */}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

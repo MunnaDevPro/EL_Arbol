@@ -85,7 +85,7 @@ export default function CartSidebar() {
               </p>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="mt-2 px-6 py-3 rounded-full border border-[#00694c]/30 text-[#00694c] text-sm font-bold hover:bg-[#f0f4f0] transition-colors"
+                className="mt-2 cursor-pointer px-6 py-3 rounded-full border border-[#00694c]/30 text-[#00694c] text-sm font-bold hover:bg-[#f0f4f0] transition-colors"
               >
                 Browse Market
               </button>
