@@ -24,24 +24,25 @@ function PineTree() {
   )
 }
 
-// Helper: turn product name into slug (matches how your [slug] page likely works)
 function toSlug(name) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 }
 
 export default function Navbar() {
-  const [open, setOpen]           = useState(false)
-  const [authOpen, setAuthOpen]   = useState(false)
-  const [authMode, setAuthMode]   = useState('login')
-  const [query, setQuery]         = useState('')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [activeIndex, setActiveIndex]   = useState(-1)
+  const [open, setOpen]                     = useState(false)
+  const [authOpen, setAuthOpen]             = useState(false)
+  const [authMode, setAuthMode]             = useState('login')
+  const [query, setQuery]                   = useState('')
+  const [showDropdown, setShowDropdown]     = useState(false)
+  const [activeIndex, setActiveIndex]       = useState(-1)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false) // ← NEW
 
   const { totalItems, setSidebarOpen } = useCart()
   const pathname  = usePathname()
   const router    = useRouter()
-  const inputRef  = useRef(null)
-  const dropdownRef = useRef(null)
+  const inputRef        = useRef(null)
+  const mobileInputRef  = useRef(null) // ← NEW
+  const dropdownRef     = useRef(null)
 
   const openLogin  = () => { setAuthMode('login');  setAuthOpen(true) }
   const openSignup = () => { setAuthMode('signup'); setAuthOpen(true) }
@@ -51,7 +52,6 @@ export default function Navbar() {
     return pathname.startsWith(href)
   }
 
-  // Filter products based on query
   const filtered = query.trim().length > 0
     ? products.filter(p =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -65,7 +65,8 @@ export default function Navbar() {
     function handleClickOutside(e) {
       if (
         dropdownRef.current && !dropdownRef.current.contains(e.target) &&
-        inputRef.current && !inputRef.current.contains(e.target)
+        inputRef.current && !inputRef.current.contains(e.target) &&
+        mobileInputRef.current && !mobileInputRef.current.contains(e.target)
       ) {
         setShowDropdown(false)
         setActiveIndex(-1)
@@ -74,6 +75,17 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Auto-focus mobile input when search opens
+  useEffect(() => {
+    if (mobileSearchOpen) {
+      setTimeout(() => mobileInputRef.current?.focus(), 50)
+    } else {
+      setQuery('')
+      setShowDropdown(false)
+      setActiveIndex(-1)
+    }
+  }, [mobileSearchOpen])
 
   function handleInputChange(e) {
     setQuery(e.target.value)
@@ -95,19 +107,21 @@ export default function Navbar() {
     } else if (e.key === 'Escape') {
       setShowDropdown(false)
       setActiveIndex(-1)
+      setMobileSearchOpen(false)
     }
   }
 
   function navigateToProduct(product) {
-  setQuery('')
-  setShowDropdown(false)
-  setActiveIndex(-1)
-  const slug = product.name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-  router.push(`/products/${slug}`)
-}
+    setQuery('')
+    setShowDropdown(false)
+    setActiveIndex(-1)
+    setMobileSearchOpen(false)
+    const slug = product.name
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+    router.push(`/products/${slug}`)
+  }
 
   return (
     <>
@@ -122,7 +136,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop links */}
+          {/* Desktop links — UNCHANGED */}
           <ul className={`${newsreader.className} hidden md:flex items-center gap-7`}>
             {navLinks.map(({ label, href }) => {
               const active = isActive(href)
@@ -147,10 +161,8 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Desktop right */}
+          {/* Desktop right — UNCHANGED */}
           <div className="hidden md:flex items-center gap-[8px] ml-auto">
-
-            {/* Search pill + dropdown wrapper */}
             <div className="relative">
               <label className="flex items-center gap-[7px] bg-[#ECF7E4] rounded-full px-[14px] py-[8px] w-[215px] cursor-text">
                 <svg width="14" height="14" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
@@ -167,7 +179,6 @@ export default function Navbar() {
                   className="bg-transparent outline-none w-full placeholder:text-[#6D7A73]"
                   style={{ fontSize: '13px', color: '#6D7A73', border: 'none' }}
                 />
-                {/* Clear button */}
                 {query && (
                   <button
                     onClick={() => { setQuery(''); setShowDropdown(false); inputRef.current?.focus() }}
@@ -181,7 +192,6 @@ export default function Navbar() {
                 )}
               </label>
 
-              {/* Search Dropdown */}
               {showDropdown && query.trim().length > 0 && (
                 <div
                   ref={dropdownRef}
@@ -190,9 +200,7 @@ export default function Navbar() {
                 >
                   {filtered.length > 0 ? (
                     <>
-                      <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-widest text-[#6D7A73] uppercase">
-                        Products
-                      </p>
+                      <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-widest text-[#6D7A73] uppercase">Products</p>
                       <ul>
                         {filtered.map((product, idx) => (
                           <li key={product.id}>
@@ -201,24 +209,13 @@ export default function Navbar() {
                               onMouseLeave={() => setActiveIndex(-1)}
                               onClick={() => navigateToProduct(product)}
                               className="w-full text-left flex items-center gap-3 px-4 py-2.5 transition-colors cursor-pointer"
-                              style={{
-                                backgroundColor: activeIndex === idx ? '#F0FAF5' : 'transparent',
-                              }}
+                              style={{ backgroundColor: activeIndex === idx ? '#F0FAF5' : 'transparent' }}
                             >
-                              {/* Product thumbnail */}
                               <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-[#ECF7E4]">
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                />
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                {/* Highlight matching part of name */}
-                                <p
-                                  className="text-[13.5px] font-medium text-[#151E13] truncate"
-                                  style={{ lineHeight: '18px' }}
-                                >
+                                <p className="text-[13.5px] font-medium text-[#151E13] truncate" style={{ lineHeight: '18px' }}>
                                   {highlightMatch(product.name, query)}
                                 </p>
                                 <p className="text-[11.5px] text-[#6D7A73]" style={{ lineHeight: '16px' }}>
@@ -232,7 +229,6 @@ export default function Navbar() {
                           </li>
                         ))}
                       </ul>
-                      {/* Footer hint */}
                       <div className="border-t border-[#BCCAC1]/30 px-4 py-2.5">
                         <button
                           onClick={() => { router.push(`/shop?q=${encodeURIComponent(query)}`); setShowDropdown(false) }}
@@ -294,13 +290,30 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Mobile right */}
+          {/* ── Mobile right ── */}
           <div className="flex md:hidden items-center gap-1 ml-auto">
-            <button className="w-9 h-9 flex items-center justify-center">
-              <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
+
+            {/* Mobile search toggle button */}
+            <button
+              onClick={() => { setMobileSearchOpen(v => !v); setOpen(false) }}
+              className="w-9 h-9 flex items-center justify-center rounded-full transition-colors"
+              style={{ backgroundColor: mobileSearchOpen ? '#ECF7E4' : 'transparent' }}
+              aria-label="Search"
+            >
+              {mobileSearchOpen ? (
+                // X icon when open
+                <svg width="17" height="17" fill="none" stroke="#151E13" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+              ) : (
+                // Magnifier icon when closed
+                <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+              )}
             </button>
+
+            {/* Cart */}
             <button onClick={() => setSidebarOpen(true)} className="w-9 h-9 flex items-center justify-center relative">
               <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="1.75" viewBox="0 0 24 24">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -315,13 +328,117 @@ export default function Navbar() {
                 </span>
               )}
             </button>
-            <button onClick={() => setOpen(!open)} className="w-9 h-9 flex items-center justify-center" aria-label="Menu">
+
+            {/* Hamburger */}
+            <button
+              onClick={() => { setOpen(!open); setMobileSearchOpen(false) }}
+              className="w-9 h-9 flex items-center justify-center"
+              aria-label="Menu"
+            >
               <svg width="19" height="19" fill="none" stroke="#151E13" strokeWidth="2" viewBox="0 0 24 24">
                 {open ? <path d="M18 6 6 18M6 6l12 12"/> : <path d="M4 6h16M4 12h16M4 18h16"/>}
               </svg>
             </button>
           </div>
         </nav>
+
+        {/* ── Mobile Search Bar (slides in below navbar) ── */}
+        {mobileSearchOpen && (
+          <div
+            className="md:hidden bg-[#FAFAF8] border-t border-[#BCCAC1]/35 px-4 py-3"
+            style={{ animation: 'dropdownFadeIn 0.15s ease' }}
+          >
+            {/* Input row */}
+            <div
+              ref={mobileInputRef}
+              className="flex items-center gap-2 bg-[#ECF7E4] rounded-full px-4 py-2.5"
+            >
+              <svg width="15" height="15" fill="none" stroke="#6D7A73" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search fresh produce..."
+                value={query}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                className="bg-transparent outline-none flex-1 placeholder:text-[#6D7A73]"
+                style={{ fontSize: '14px', color: '#151E13', border: 'none' }}
+              />
+              {query && (
+                <button
+                  onClick={() => { setQuery(''); setShowDropdown(false) }}
+                  className="text-[#6D7A73] flex-shrink-0"
+                >
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Mobile dropdown results */}
+            {showDropdown && query.trim().length > 0 && (
+              <div
+                ref={dropdownRef}
+                className="mt-2 bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-[#BCCAC1]/40 overflow-hidden"
+                style={{ animation: 'dropdownFadeIn 0.15s ease' }}
+              >
+                {filtered.length > 0 ? (
+                  <>
+                    <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-widest text-[#6D7A73] uppercase">
+                      Products
+                    </p>
+                    <ul>
+                      {filtered.map((product, idx) => (
+                        <li key={product.id}>
+                          <button
+                            onClick={() => navigateToProduct(product)}
+                            className="w-full text-left flex items-center gap-3 px-4 py-3 transition-colors active:bg-[#F0FAF5]"
+                            style={{ backgroundColor: activeIndex === idx ? '#F0FAF5' : 'transparent' }}
+                          >
+                            <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-[#ECF7E4]">
+                              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[14px] font-medium text-[#151E13] truncate" style={{ lineHeight: '19px' }}>
+                                {highlightMatch(product.name, query)}
+                              </p>
+                              <p className="text-[12px] text-[#6D7A73]" style={{ lineHeight: '17px' }}>
+                                {product.category} · {product.origin}
+                              </p>
+                            </div>
+                            <span className="text-[13.5px] font-semibold text-[#00694C] flex-shrink-0">
+                              €{product.price.toFixed(2)}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="border-t border-[#BCCAC1]/30 px-4 py-3">
+                      <button
+                        onClick={() => {
+                          router.push(`/shop?q=${encodeURIComponent(query)}`)
+                          setShowDropdown(false)
+                          setMobileSearchOpen(false)
+                        }}
+                        className="text-[13px] text-[#1D9E75] font-medium bg-transparent border-none p-0 cursor-pointer"
+                      >
+                        See all results for "{query}" →
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="px-4 py-5 text-center">
+                    <p className="text-[13px] text-[#6D7A73]">
+                      No products found for <span className="font-medium text-[#151E13]">"{query}"</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Mobile drawer */}
@@ -342,9 +459,7 @@ export default function Navbar() {
                 }}
               >
                 {label}
-                {active && (
-                  <span className="w-2 h-2 rounded-full bg-[#1D9E75]" />
-                )}
+                {active && <span className="w-2 h-2 rounded-full bg-[#1D9E75]" />}
               </Link>
             )
           })}
@@ -367,7 +482,6 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Dropdown fade-in animation */}
       <style jsx global>{`
         @keyframes dropdownFadeIn {
           from { opacity: 0; transform: translateY(-6px); }
@@ -384,7 +498,6 @@ export default function Navbar() {
   )
 }
 
-// Highlight the matched portion of text
 function highlightMatch(text, query) {
   if (!query) return text
   const idx = text.toLowerCase().indexOf(query.toLowerCase())
